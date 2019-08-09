@@ -1087,6 +1087,7 @@ class Provision(Register):
             if self.ssh_is_connected(ssh_host):
                 self.rhel_compose_repo(ssh_host, compose_id, "/etc/yum.repos.d/compose.repo")
                 self.install_base_packages(ssh_host)
+                self.rhsm_backup(ssh_host)
         except Exception, e:
             logger.error(e)
         finally:
@@ -1154,6 +1155,7 @@ class Provision(Register):
             initrd_url = "{0}/{1}/mnt/isolinux/initrd.img".format(nfs_rhev_url, random_dir)
             self.rhel_grub_update(ssh_host, ks_url, vmlinuz_url, initrd_url, repo_url, is_rhev=True)
             self.ssh_is_connected(ssh_host)
+            self.rhsm_backup(ssh_host)
         except Exception, e:
             logger.error(e)
         finally:
@@ -1430,6 +1432,7 @@ class Provision(Register):
                 'ssh_sat':ssh_sat
         }
         self.system_init("ci-host-satellite", ssh_sat)
+        self.rhsm_backup(ssh_sat)
         sat_ver, rhel_ver = self.satellite_version(sat_type)
         if "dogfood" in sat_type:
             self.satellite_qa_dogfood_enable(ssh_sat, sat_ver, rhel_ver, repo_type="satellite")
@@ -2083,7 +2086,7 @@ class Provision(Register):
 
     def hyperv_guest_ip(self, ssh_hyperv, guest_name):
         cmd = "powershell (Get-VMNetworkAdapter -VMName %s).IpAddresses" % (guest_name)
-        for i in range(60):
+        for i in range(20):
             time.sleep(30)
             ret, output = self.runcmd(cmd, ssh_hyperv)
             if ret == 0 and output != "":
