@@ -696,8 +696,6 @@ class Provision(Register):
         self.system_unregister(ssh_host)
 
     def jenkins_job_init(self, register_type, register_config, ssh_host, ssh_guest):
-        self.rhsm_backup(ssh_host)
-        self.rhsm_backup(ssh_guest)
         self.jenkins_virtwho_install(register_type, ssh_host)
         if "stage" in register_type:
             self.stage_consumer_clean(ssh_host, register_config)
@@ -1085,9 +1083,9 @@ class Provision(Register):
         try:
             self.rhel_grub_update(ssh_host, ks_url, vmlinuz_url, initrd_url, base_repo, is_rhev=False)
             if self.ssh_is_connected(ssh_host):
+                self.rhsm_backup(ssh_host)
                 self.rhel_compose_repo(ssh_host, compose_id, "/etc/yum.repos.d/compose.repo")
                 self.install_base_packages(ssh_host)
-                self.rhsm_backup(ssh_host)
         except Exception, e:
             logger.error(e)
         finally:
@@ -1154,8 +1152,8 @@ class Provision(Register):
             vmlinuz_url = "{0}/{1}/mnt/isolinux/vmlinuz".format(nfs_rhev_url, random_dir)
             initrd_url = "{0}/{1}/mnt/isolinux/initrd.img".format(nfs_rhev_url, random_dir)
             self.rhel_grub_update(ssh_host, ks_url, vmlinuz_url, initrd_url, repo_url, is_rhev=True)
-            self.ssh_is_connected(ssh_host)
-            self.rhsm_backup(ssh_host)
+            if self.ssh_is_connected(ssh_host):
+                self.rhsm_backup(ssh_host)
         except Exception, e:
             logger.error(e)
         finally:
@@ -1432,7 +1430,6 @@ class Provision(Register):
                 'ssh_sat':ssh_sat
         }
         self.system_init("ci-host-satellite", ssh_sat)
-        self.rhsm_backup(ssh_sat)
         sat_ver, rhel_ver = self.satellite_version(sat_type)
         if "dogfood" in sat_type:
             self.satellite_qa_dogfood_enable(ssh_sat, sat_ver, rhel_ver, repo_type="satellite")
