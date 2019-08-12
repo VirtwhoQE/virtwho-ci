@@ -23,10 +23,6 @@ class Testcase(Testing):
         self.vw_etc_d_mode_create('virtwho-config', '/etc/virt-who.d/virtwho-config.conf')
         register_config = self.get_register_config()
         register_server = register_config['server']
-        register_type = register_config['type']
-        if "satellite" in register_type:
-            ssh_sat = register_config['ssh_sat']
-            register_server = self.get_hostname(ssh_sat)
         hypervisor_config = self.get_hypervisor_config()
         hypervisor_server = hypervisor_config['ssh_hypervisor']['host']
         if hypervisor_type == 'rhevm':
@@ -72,7 +68,9 @@ class Testcase(Testing):
                 logger.info("virt-who connect hypervisor '{0}' not by proxy".format(hypervisor_type))
                 data, tty_output, rhsm_output = self.vw_start(exp_send=1)
                 res3 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-                res4 = res5 = "true"
+                results.setdefault('step2', []).append(res1)
+                results.setdefault('step2', []).append(res2)
+                results.setdefault('step2', []).append(res3)
             else:
                 logger.info("virt-who connect hypervisor '{0}' by proxy".format(hypervisor_type))
                 error_msg = "Cannot connect to proxy"
@@ -85,11 +83,11 @@ class Testcase(Testing):
                 self.vw_option_update_value("rhsm_no_proxy", register_server, vw_conf)
                 data, tty_output, rhsm_output = self.vw_start(exp_send=1)
                 res5 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-            results.setdefault('step2', []).append(res1)
-            results.setdefault('step2', []).append(res2)
-            results.setdefault('step2', []).append(res3)
-            results.setdefault('step2', []).append(res4)
-            results.setdefault('step2', []).append(res5)
+                results.setdefault('step2', []).append(res1)
+                results.setdefault('step2', []).append(res2)
+                results.setdefault('step2', []).append(res3)
+                results.setdefault('step2', []).append(res4)
+                results.setdefault('step2', []).append(res5)
             self.vw_option_del('no_proxy', sysconfig_file)
             self.vw_option_del(option, sysconfig_file)
             self.vw_option_disable('rhsm_no_proxy', vw_conf)
