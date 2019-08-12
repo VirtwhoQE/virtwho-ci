@@ -245,7 +245,13 @@ class Provision(Register):
         conf_host = dict()
         conf_guest = dict()
         ssh_rhev = {"host": rhev_host,"username":rhev_user,"password":rhev_passwd}
+        rhevm_ip = deploy.vdsm.rhevm_ip
+        rhevm_ssh_user = deploy.vdsm.rhevm_ssh_user
+        rhevm_ssh_passwd = deploy.vdsm.rhevm_ssh_passwd
+        ssh_rhevm = {"host":rhevm_ip,"username":rhevm_ssh_user,"password":rhevm_ssh_passwd}
+        rhevm_version = self.rhevm_version_get(ssh_rhevm)
         self.rhev_install_by_grub(ssh_rhev, rhev_iso)
+        self.vdsm_host_init(ssh_rhev, rhevm_version)
         self.ssh_no_passwd_access(ssh_rhev)
         self.install_epel_packages(ssh_rhev)
         guest_ip = self.guest_vdsm_setup(ssh_rhev)
@@ -263,6 +269,7 @@ class Provision(Register):
         username = deploy.beaker.default_user
         password = deploy.beaker.default_passwd
         ssh_host = {"host": host_ip,"username": username,"password": password}
+        self.rhsm_backup(ssh_host)
         self.ssh_no_passwd_access(ssh_host)
         self.install_base_packages(ssh_host)
         queue.put((func_name, conf_host))
@@ -283,6 +290,7 @@ class Provision(Register):
         local_passwd = deploy.libvirt.local_passwd
         ssh_libvirt = {"host": local_host,"username":local_user,"password":local_passwd}
         self.rhel_install_by_grub(ssh_libvirt, compose_id)
+        self.system_init("ci-host-libvirt-local", ssh_libvirt)
         self.ssh_no_passwd_access(ssh_libvirt)
         guest_ip = self.guest_libvirt_local_setup(ssh_libvirt)
         conf_host["libvirt-local-host-ip"] = local_host
@@ -298,7 +306,13 @@ class Provision(Register):
         master_user = deploy.vdsm.master_user
         master_passwd = deploy.vdsm.master_passwd
         ssh_vdsm = {"host":master,"username":master_user,"password":master_passwd}
+        rhevm_ip = deploy.vdsm.rhevm_ip
+        rhevm_ssh_user = deploy.vdsm.rhevm_ssh_user
+        rhevm_ssh_passwd = deploy.vdsm.rhevm_ssh_passwd
+        ssh_rhevm = {"host":rhevm_ip,"username":rhevm_ssh_user,"password":rhevm_ssh_passwd}
+        rhevm_version = self.rhevm_version_get(ssh_rhevm)
         self.rhel_install_by_grub(ssh_vdsm, compose_id)
+        self.vdsm_host_init(ssh_vdsm, rhevm_version)
         self.ssh_no_passwd_access(ssh_vdsm)
         guest_ip = self.guest_vdsm_setup(ssh_vdsm)
         conf_host["vdsm-host-ip"] = master
@@ -1083,7 +1097,6 @@ class Provision(Register):
         try:
             self.rhel_grub_update(ssh_host, ks_url, vmlinuz_url, initrd_url, base_repo, is_rhev=False)
             if self.ssh_is_connected(ssh_host):
-                self.rhsm_backup(ssh_host)
                 self.rhel_compose_repo(ssh_host, compose_id, "/etc/yum.repos.d/compose.repo")
                 self.install_base_packages(ssh_host)
         except Exception, e:
@@ -1152,8 +1165,7 @@ class Provision(Register):
             vmlinuz_url = "{0}/{1}/mnt/isolinux/vmlinuz".format(nfs_rhev_url, random_dir)
             initrd_url = "{0}/{1}/mnt/isolinux/initrd.img".format(nfs_rhev_url, random_dir)
             self.rhel_grub_update(ssh_host, ks_url, vmlinuz_url, initrd_url, repo_url, is_rhev=True)
-            if self.ssh_is_connected(ssh_host):
-                self.rhsm_backup(ssh_host)
+            self.ssh_is_connected(ssh_host)
         except Exception, e:
             logger.error(e)
         finally:
@@ -1722,7 +1734,6 @@ class Provision(Register):
         guest_name = deploy.libvirt.guest_name
         guest_user = deploy.libvirt.guest_user
         guest_passwd = deploy.libvirt.guest_passwd
-        self.system_init("ci-host-libvirt-local", ssh_libvirt)
         self.libvirt_pkg_install(ssh_libvirt)
         self.bridge_setup("br0", ssh_libvirt)
         self.libvirt_guests_all_clean(ssh_libvirt)
@@ -1748,10 +1759,8 @@ class Provision(Register):
         datacenter = deploy.vdsm.datacenter
         storage = deploy.vdsm.storage
         ssh_rhevm = {"host":rhevm_ip,"username":rhevm_ssh_user,"password":rhevm_ssh_passwd}
-        rhevm_version = self.rhevm_version_get(ssh_rhevm)
         rhevm_admin_server = self.rhevm_admin_get(ssh_rhevm)
         rhevm_shell, rhevm_shellrc = self.rhevm_shell_get(ssh_rhevm)
-        self.vdsm_host_init(ssh_vdsm, rhevm_version)
         self.rhevm_shell_config(ssh_rhevm, rhevm_admin_server, rhevm_admin_user, rhevm_admin_passwd)
         self.rhevm_cpu_set(ssh_rhevm, rhevm_shell, cluster, cputype)
         self.rhevm_template_ready(ssh_rhevm, rhevm_shell, template, disk)
@@ -3273,8 +3282,6 @@ class Provision(Register):
 
     def vdsm_host_init(self, ssh_vdsm, rhevm_version):
         trigger_type = deploy.trigger.type
-        host_ip = self.get_ipaddr(ssh_vdsm)
-        host_name = self.get_hostname(ssh_vdsm)
         rhel_ver = self.rhel_version(ssh_vdsm)
         self.system_init("ci-host-vdsm", ssh_vdsm)
         if trigger_type == "trigger-rhev":
