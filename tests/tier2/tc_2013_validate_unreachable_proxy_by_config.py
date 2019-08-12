@@ -62,14 +62,14 @@ class Testcase(Testing):
             error_msg = "Connection refused|Cannot connect to proxy|Connection timed out"
             res1 = self.op_normal_value(data, exp_error='1|2', exp_thread=1, exp_send=0)
             res2 = self.vw_msg_search(rhsm_output, error_msg)
+            results.setdefault('step2', []).append(res1)
+            results.setdefault('step2', []).append(res2)
             logger.info("> configure no_proxy=[register_server] in /etc/sysconfig/virt-who")
             self.vw_option_add("no_proxy", register_server, sysconfig_file)
             if hypervisor_type in ('libvirt-remote', 'hyperv', 'kubevirt'):
                 logger.info("virt-who connect hypervisor '{0}' not by proxy".format(hypervisor_type))
                 data, tty_output, rhsm_output = self.vw_start(exp_send=1)
                 res3 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-                results.setdefault('step2', []).append(res1)
-                results.setdefault('step2', []).append(res2)
                 results.setdefault('step2', []).append(res3)
             else:
                 logger.info("virt-who connect hypervisor '{0}' by proxy".format(hypervisor_type))
@@ -83,8 +83,6 @@ class Testcase(Testing):
                 self.vw_option_update_value("rhsm_no_proxy", register_server, vw_conf)
                 data, tty_output, rhsm_output = self.vw_start(exp_send=1)
                 res5 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-                results.setdefault('step2', []).append(res1)
-                results.setdefault('step2', []).append(res2)
                 results.setdefault('step2', []).append(res3)
                 results.setdefault('step2', []).append(res4)
                 results.setdefault('step2', []).append(res5)
