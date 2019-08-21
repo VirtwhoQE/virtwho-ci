@@ -23,7 +23,8 @@ class Testcase(Testing):
         config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
         self.vw_etc_d_mode_create(config_name, config_file)
         vw_pkg = self.pkg_check(self.ssh_host(), 'virt-who')
-        msg_list = ["no section headers|Error in .* backend|"
+        msg_list = ["no section headers|"
+                    "Error in .* backend|"
                     "do not have any valid section headers"]
 
         # Case Steps

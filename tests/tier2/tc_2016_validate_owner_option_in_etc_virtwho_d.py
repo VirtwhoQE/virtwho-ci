@@ -32,7 +32,8 @@ class Testcase(Testing):
         logger.info(">>>step2: owner option is wrong value")
         self.vw_option_update_value(option_tested, "xxxxxx", config_file)
         data, tty_output, rhsm_output = self.vw_start()
-        msg_list = ["owner.* is different|Communication with subscription manager failed"]
+        msg_list = ["owner.* is different|"
+                    "Communication with subscription manager failed"]
         res1 = self.op_normal_value(data, exp_error="1|2", exp_thread=1, exp_send=0)
         res2 = self.msg_validation(rhsm_output, msg_list, exp_exist=True)
         results.setdefault('step2', []).append(res1)
@@ -48,7 +49,9 @@ class Testcase(Testing):
         logger.info(">>>step4: owner option is null value")
         self.vw_option_update_value(option_tested, '', config_file)
         data, tty_output, rhsm_output = self.vw_start()
-        msg_list = ["owner not in|owner.* not set|virt-who can't be started|"
+        msg_list = ["owner not in|"
+                    "owner.* not set|"
+                    "virt-who can't be started|"
                     "Communication with subscription manager failed"]
         res1 = self.op_normal_value(data, exp_error="1|2|3", exp_thread=1, exp_send=0)
         res2 = self.msg_validation(rhsm_output, msg_list, exp_exist=True)
@@ -71,7 +74,8 @@ class Testcase(Testing):
         self.vw_etc_d_mode_create(config_name_ok, config_file_ok)
         self.vw_option_disable(option_tested, config_file)
         data, tty_output, rhsm_output = self.vw_start(exp_error=True)
-        msg_list = ["owner not in|owner.* not set|"
+        msg_list = ["owner not in|"
+                    "owner.* not set|"
                     "Communication with subscription manager failed"]
         res1 = self.op_normal_value(data, exp_error="1|2|3", exp_thread=1, exp_send=1)
         res2 = self.msg_validation(rhsm_output, msg_list, exp_exist=True)

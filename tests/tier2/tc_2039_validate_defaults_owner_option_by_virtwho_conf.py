@@ -43,7 +43,8 @@ class Testcase(Testing):
                     "set owner=xxxxxx in /etc/virt-who.conf")
         self.vw_option_update_value("owner", "xxxxxx", virtwho_conf)
         data, tty_output, rhsm_output = self.vw_start()
-        msg_list = ["owner.* is different|Communication with subscription manager failed"]
+        msg_list = ["owner.* is different|"
+                    "Communication with subscription manager failed"]
         res1 = self.op_normal_value(data, exp_error="1|2", exp_thread=1, exp_send=0)
         res2 = self.msg_validation(rhsm_output, msg_list, exp_exist=True)
         results.setdefault('step2', []).append(res1)
@@ -61,7 +62,9 @@ class Testcase(Testing):
                     "set owner= in /etc/virt-who.conf")
         self.vw_option_update_value("owner", "", virtwho_conf)
         data, tty_output, rhsm_output = self.vw_start()
-        msg_list = ["owner not in|owner.* not set|virt-who can't be started|"
+        msg_list = ["owner not in|"
+                    "owner.* not set|"
+                    "virt-who can't be started|"
                     "Communication with subscription manager failed"]
         res1 = self.op_normal_value(data, exp_error="1|2|3", exp_thread=1, exp_send=0)
         res2 = self.msg_validation(rhsm_output, msg_list, exp_exist=True)
@@ -74,7 +77,8 @@ class Testcase(Testing):
         self.vw_option_enable("owner", config_file)
         self.vw_option_update_value("owner", "xxxxxx", config_file)
         data, tty_output, rhsm_output = self.vw_start()
-        msg_list = ["owner.* is different|Communication with subscription manager failed"]
+        msg_list = ["owner.* is different|"
+                    "Communication with subscription manager failed"]
         res1 = self.op_normal_value(data, exp_error="1|2", exp_thread=1, exp_send=0)
         res2 = self.msg_validation(rhsm_output, msg_list, exp_exist=True)
         results.setdefault('step5', []).append(res1)

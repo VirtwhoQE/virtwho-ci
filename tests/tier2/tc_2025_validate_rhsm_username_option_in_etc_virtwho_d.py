@@ -41,17 +41,18 @@ class Testcase(Testing):
         results.setdefault('step1', []).append(res)
 
         logger.info(">>>step2: run virt-who with rhsm_username=xxxxxx")
-        msg = "Communication with subscription manager failed"
+        error_msg = "Communication with subscription manager failed"
         self.vw_option_update_value("rhsm_username", "xxxxxx", config_file)
         data, tty_output, rhsm_output = self.vw_start()
         res1 = self.op_normal_value(data, exp_error="1|2", exp_thread=1, exp_send=0)
-        res2 = self.vw_msg_search(rhsm_output, msg, exp_exist=True)
+        res2 = self.vw_msg_search(rhsm_output, error_msg, exp_exist=True)
         results.setdefault('step2', []).append(res1)
         results.setdefault('step2', []).append(res2)
 
         logger.info(">>>step3: run virt-who with rhsm_username=红帽©¥®ðπ∉")
         '''红帽©¥®ðπ∉ username is not supported by candlepin'''
-        msg_list = ["codec can't decode|Communication with subscription manager failed"]
+        msg_list = ["codec can't decode|"
+                    "Communication with subscription manager failed"]
         self.vw_option_update_value("rhsm_username", "红帽©¥®ðπ∉", config_file)
         data, tty_output, rhsm_output = self.vw_start()
         res1 = self.op_normal_value(data, exp_error="1|2", exp_thread=1, exp_send=0)
@@ -60,10 +61,11 @@ class Testcase(Testing):
         results.setdefault('step3', []).append(res2)
 
         logger.info(">>>step4: run virt-who with rhsm_username null value")
+        error_msg = "system is not registered or you are not root"
         self.vw_option_update_value("rhsm_username", " ", config_file)
         data, tty_output, rhsm_output = self.vw_start()
         res1 = self.op_normal_value(data, exp_error=1, exp_thread=1, exp_send=0)
-        res2 = self.vw_msg_search(rhsm_output, "system is not registered or you are not root")
+        res2 = self.vw_msg_search(rhsm_output, error_msg)
         results.setdefault('step4', []).append(res1)
         results.setdefault('step4', []).append(res2)
 
@@ -71,7 +73,7 @@ class Testcase(Testing):
         self.vw_option_disable("rhsm_username", config_file)
         data, tty_output, rhsm_output = self.vw_start()
         res1 = self.op_normal_value(data, exp_error=1, exp_thread=1, exp_send=0)
-        res2 = self.vw_msg_search(rhsm_output, "system is not registered or you are not root")
+        res2 = self.vw_msg_search(rhsm_output, error_msg)
         results.setdefault('step5', []).append(res1)
         results.setdefault('step5', []).append(res2)
 
