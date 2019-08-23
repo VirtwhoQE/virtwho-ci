@@ -36,7 +36,6 @@ class Testcase(Testing):
         results.setdefault('step1', []).append(res1)
 
         logger.info(">>>step2: add useless line with tab spaces after server=")
-        ''' '''
         cmd = "sed -i '/^server=/a \\\txxx=xxx' {0}".format(config_file)
         ret, output = self.runcmd(cmd, self.ssh_host(), desc="add new line with tab")
         data, tty_output, rhsm_output = self.vw_start(exp_send=0)
