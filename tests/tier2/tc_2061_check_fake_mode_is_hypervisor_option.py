@@ -37,7 +37,7 @@ class Testcase(Testing):
         results.setdefault('step2', []).append(res1)
         results.setdefault('step2', []).append(res2)
 
-        logger.info(">>>step3: comment out is_hypervisor option")
+        logger.info(">>>step3: disabel is_hypervisor option")
         war_msg = 'Required option: "is_hypervisor" is missing in: ' \
                   '"fake" using default "True"'
         self.vw_option_disable('is_hypervisor', conf_file)
