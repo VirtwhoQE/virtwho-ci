@@ -87,16 +87,15 @@ def install_satellite(args):
     provision.runcmd(
         'hammer settings set --name=unregister_delete_host --value=true',
         ssh_sat)
+    provision.runcmd(
+        'foreman-maintain packages unlock',
+        ssh_sat)
     provision.ssh_no_passwd_access(ssh_sat)
     update_section('satellite', 'hostname', host)
     update_section('satellite', 'ssh_username', username)
     update_section('satellite', 'ssh_password', password)
     update_section('satellite', 'admin_username', admin_username)
     update_section('satellite', 'admin_password', admin_username)
-    # disable the version-locking for now
-    provision.runcmd(
-        'satellite-installer --no-lock-package-versions',
-        ssh_sat)
 
 def setup_esx():
     vcenter_ip = deploy.vcenter.ip
