@@ -16,8 +16,16 @@ class Testcase(Testing):
         # Case Config
         results = dict()
         guest_uuid = self.get_hypervisor_guestuuid()
-        cmd1 = self.vw_cli_base() + "-d -m"
-        cmd2 = self.vw_cli_base() + "-d --log-per-config"
+        hypervisor_type = self.get_config('hypervisor_type')
+        if 'kubevirt' in hypervisor_type:
+            config_name = "virtwho-config"
+            config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
+            self.vw_etc_d_mode_create(config_name, config_file)
+            cmd1 = "virt-who -d -m"
+            cmd2 = "virt-who -d --log-per-config"
+        else:
+            cmd1 = self.vw_cli_base() + "-d -m"
+            cmd2 = self.vw_cli_base() + "-d --log-per-config"
         steps = {'step1': cmd1, 'step2': cmd2}
 
         # Case Steps

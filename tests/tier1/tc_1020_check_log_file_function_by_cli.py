@@ -17,8 +17,16 @@ class Testcase(Testing):
         log_dir = "/var/log/rhsm/virtwho"
         log_file = "/var/log/rhsm/virtwho/virtwho.log"
         guest_uuid = self.get_hypervisor_guestuuid()
-        cmd1 = self.vw_cli_base() + "-d -l {0} -f {1}".format(log_dir,log_file)
-        cmd2 = self.vw_cli_base() + "-d --log-dir {0} --log-file {1}".format(log_dir,log_file)
+        hypervisor_type = self.get_config('hypervisor_type')
+        if 'kubevirt' in hypervisor_type:
+            config_name = "virtwho-config"
+            config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
+            self.vw_etc_d_mode_create(config_name, config_file)
+            cmd1 = "virt-who -d -l {0} -f {1}".format(log_dir,log_file)
+            cmd2 = "virt-who -d --log-dir {0} --log-file {1}".format(log_dir,log_file)
+        else:
+            cmd1 = self.vw_cli_base() + "-d -l {0} -f {1}".format(log_dir,log_file)
+            cmd2 = self.vw_cli_base() + "-d --log-dir {0} --log-file {1}".format(log_dir,log_file)
         steps = {'step1':cmd1, 'step2':cmd2}
 
         # case steps

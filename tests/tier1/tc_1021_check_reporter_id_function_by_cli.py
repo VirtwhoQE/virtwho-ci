@@ -16,8 +16,16 @@ class Testcase(Testing):
         # case config
         results = dict()
         reporter_id = "virtwho_reporter_id_tc1021"
-        cmd1 = self.vw_cli_base() + "-d -r {0}".format(reporter_id)
-        cmd2 = self.vw_cli_base() + "-d --reporter-id {0}".format(reporter_id)
+        hypervisor_type = self.get_config('hypervisor_type')
+        if 'kubevirt' in hypervisor_type:
+            config_name = "virtwho-config"
+            config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
+            self.vw_etc_d_mode_create(config_name, config_file)
+            cmd1 = "virt-who -d -r {0}".format(reporter_id)
+            cmd2 = "virt-who --reporter-id {0}".format(reporter_id)
+        else:
+            cmd1 = self.vw_cli_base() + "-d -r {0}".format(reporter_id)
+            cmd2 = self.vw_cli_base() + "-d --reporter-id {0}".format(reporter_id)
         steps = {'step1': cmd1, 'step2': cmd2}
 
         # case steps

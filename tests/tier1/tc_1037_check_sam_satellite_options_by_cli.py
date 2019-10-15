@@ -15,8 +15,16 @@ class Testcase(Testing):
 
         # case config
         results = dict()
-        cmd1 = self.vw_cli_base() + "--sam -d"
-        cmd2 = self.vw_cli_base() + "--satellite6 -d"
+        hypervisor_type = self.get_config('hypervisor_type')
+        if 'kubevirt' in hypervisor_type:
+            config_name = "virtwho-config"
+            config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
+            self.vw_etc_d_mode_create(config_name, config_file)
+            cmd1 = "virt-who --sam -d"
+            cmd2 = "virt-who --satellite6 -d"
+        else:
+            cmd1 = self.vw_cli_base() + "--sam -d"
+            cmd2 = self.vw_cli_base() + "--satellite6 -d"
         steps = {'step1': cmd1, 'step2': cmd2}
 
         # case steps
