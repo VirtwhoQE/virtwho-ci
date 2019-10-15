@@ -22,7 +22,7 @@ class Testcase(Testing):
             config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
             self.vw_etc_d_mode_create(config_name, config_file)
             cmd1 = "virt-who -d -r {0}".format(reporter_id)
-            cmd2 = "virt-who --reporter-id {0}".format(reporter_id)
+            cmd2 = "virt-who -d --reporter-id {0}".format(reporter_id)
         else:
             cmd1 = self.vw_cli_base() + "-d -r {0}".format(reporter_id)
             cmd2 = self.vw_cli_base() + "-d --reporter-id {0}".format(reporter_id)
