@@ -17,15 +17,8 @@ class Testcase(Testing):
         results = dict()
         reporter_id = "virtwho_reporter_id_tc1021"
         hypervisor_type = self.get_config('hypervisor_type')
-        if 'kubevirt' in hypervisor_type:
-            config_name = "virtwho-config"
-            config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
-            self.vw_etc_d_mode_create(config_name, config_file)
-            cmd1 = "virt-who -d -r {0}".format(reporter_id)
-            cmd2 = "virt-who -d --reporter-id {0}".format(reporter_id)
-        else:
-            cmd1 = self.vw_cli_base() + "-d -r {0}".format(reporter_id)
-            cmd2 = self.vw_cli_base() + "-d --reporter-id {0}".format(reporter_id)
+        cmd1 = self.vw_cli_base() + "-d -r {0}".format(reporter_id)
+        cmd2 = self.vw_cli_base() + "-d --reporter-id {0}".format(reporter_id)
         steps = {'step1': cmd1, 'step2': cmd2}
 
         # case steps
@@ -44,4 +37,9 @@ class Testcase(Testing):
                 results.setdefault(step, []).append(False)
 
         # case result
-        self.vw_case_result(results)
+        notes = list()
+        hypervisor_type = self.get_config('hypervisor_type')
+        if hypervisor_type == 'kubevirt':
+            notes.append("(step1,2) No kubeconfig option for cli")
+            notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1751441")
+        self.vw_case_result(results, notes)

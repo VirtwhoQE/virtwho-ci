@@ -16,16 +16,8 @@ class Testcase(Testing):
         # Case Config
         results = dict()
         guest_uuid = self.get_hypervisor_guestuuid()
-        hypervisor_type = self.get_config('hypervisor_type')
-        if 'kubevirt' in hypervisor_type:
-            config_name = "virtwho-config"
-            config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
-            self.vw_etc_d_mode_create(config_name, config_file)
-            cmd1 = "virt-who -d -m"
-            cmd2 = "virt-who -d --log-per-config"
-        else:
-            cmd1 = self.vw_cli_base() + "-d -m"
-            cmd2 = self.vw_cli_base() + "-d --log-per-config"
+        cmd1 = self.vw_cli_base() + "-d -m"
+        cmd2 = self.vw_cli_base() + "-d --log-per-config"
         steps = {'step1': cmd1, 'step2': cmd2}
 
         # Case Steps
@@ -78,4 +70,9 @@ class Testcase(Testing):
                         logger.error("Failed to validate virtwho.rhsm_log file")
                         results.setdefault(step, []).append(False)
         # case result
-        self.vw_case_result(results)
+        notes = list()
+        hypervisor_type = self.get_config('hypervisor_type')
+        if hypervisor_type == 'kubevirt':
+            notes.append("(step1,2) No kubeconfig option for cli")
+            notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1751441")
+        self.vw_case_result(results, notes)

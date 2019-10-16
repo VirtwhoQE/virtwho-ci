@@ -9,7 +9,7 @@ class Testcase(Testing):
     def test_run(self):
         self.vw_case_info(os.path.basename(__file__), case_id='RHEL-136568')
         hypervisor_type = self.get_config('hypervisor_type')
-        if hypervisor_type in ('libvirt-local', 'vdsm', 'kubevirt'):
+        if hypervisor_type in ('libvirt-local', 'vdsm'):
             self.vw_case_skip(hypervisor_type)
         compose_id = self.get_config('rhel_compose')
         if "RHEL-8" in compose_id:
@@ -78,4 +78,8 @@ class Testcase(Testing):
         results.setdefault('step5', []).append(res2)
 
         # Case Result
-        self.vw_case_result(results)
+        notes = list()
+        if hypervisor_type == 'kubevirt':
+            notes.append("(step1,2) No kubeconfig option for cli")
+            notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1751441")
+        self.vw_case_result(results, notes)

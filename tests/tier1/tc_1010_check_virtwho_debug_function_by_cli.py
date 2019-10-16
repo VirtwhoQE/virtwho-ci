@@ -13,8 +13,7 @@ class Testcase(Testing):
         # case config
         results = dict()
         compose_id = self.get_config('rhel_compose')
-        hypervisor_type = self.get_config('hypervisor_type')
-        if "RHEL-8" in compose_id or 'kubevirt' in hypervisor_type:
+        if "RHEL-8" in compose_id:
             config_name = "virtwho-config"
             config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
             self.vw_etc_d_mode_create(config_name, config_file)
@@ -40,4 +39,9 @@ class Testcase(Testing):
         results.setdefault('step2', []).append(res2)
 
         # case result
-        self.vw_case_result(results)
+        notes = list()
+        hypervisor_type = self.get_config('hypervisor_type')
+        if hypervisor_type == 'kubevirt':
+            notes.append("(step1,2) No kubeconfig option for cli")
+            notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1751441")
+        self.vw_case_result(results, notes)
