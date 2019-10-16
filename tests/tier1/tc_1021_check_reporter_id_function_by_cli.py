@@ -16,7 +16,6 @@ class Testcase(Testing):
         # case config
         results = dict()
         reporter_id = "virtwho_reporter_id_tc1021"
-        hypervisor_type = self.get_config('hypervisor_type')
         cmd1 = self.vw_cli_base() + "-d -r {0}".format(reporter_id)
         cmd2 = self.vw_cli_base() + "-d --reporter-id {0}".format(reporter_id)
         steps = {'step1': cmd1, 'step2': cmd2}

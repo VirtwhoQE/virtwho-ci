@@ -18,7 +18,6 @@ class Testcase(Testing):
         log_dir = "/var/log/rhsm/virtwho/"
         log_file = "/var/log/rhsm/virtwho/rhsm.log"
         guest_uuid = self.get_hypervisor_guestuuid()
-        hypervisor_type = self.get_config('hypervisor_type')
         cmd1 = self.vw_cli_base() + "-d -l {0}".format(log_dir)
         cmd2 = self.vw_cli_base() + "-d --log-dir {0}".format(log_dir)
         steps = {'step1': cmd1, 'step2': cmd2}

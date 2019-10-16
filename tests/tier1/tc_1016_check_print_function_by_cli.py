@@ -13,7 +13,6 @@ class Testcase(Testing):
         # case config
         results = dict()
         json_file = "/tmp/file.json"
-        hypervisor_type = self.get_config('hypervisor_type')
         host_uuid = self.get_hypervisor_hostuuid()
         guest_uuid = self.get_hypervisor_guestuuid()
         compose_id = self.get_config('rhel_compose')

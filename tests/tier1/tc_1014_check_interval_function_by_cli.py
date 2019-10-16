@@ -13,7 +13,6 @@ class Testcase(Testing):
         # case config
         results = dict()
         compose_id = self.get_config('rhel_compose')
-        hypervisor_type = self.get_config('hypervisor_type')
         if "RHEL-8" in compose_id:
             config_name = "virtwho-config"
             config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
