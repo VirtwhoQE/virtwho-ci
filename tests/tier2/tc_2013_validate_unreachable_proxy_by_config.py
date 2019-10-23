@@ -9,6 +9,7 @@ class Testcase(Testing):
     def test_run(self):
         self.vw_case_info(os.path.basename(__file__), case_id='RHEL-136709')
         hypervisor_type = self.get_config('hypervisor_type')
+        compose_id = self.get_config('rhel_compose')
         if self.pkg_check(self.ssh_host(), 'virt-who')[9:15] < '0.25.7':
             self.vw_case_skip("virt-who version")
         if hypervisor_type in ('libvirt-local', 'vdsm'):
@@ -19,25 +20,25 @@ class Testcase(Testing):
         results = dict()
         sysconfig_file = "/etc/sysconfig/virt-who"
         vw_conf = "/etc/virt-who.conf"
+        conf_file = "/etc/virt-who.d/virtwho-config.conf"
         self.vw_option_enable('[global]', vw_conf)
         self.vw_option_enable('debug', vw_conf)
         self.vw_option_update_value('debug', 'True', vw_conf)
         self.vw_option_enable('[defaults]', vw_conf)
-        self.vw_etc_d_mode_create('virtwho-config', '/etc/virt-who.d/virtwho-config.conf')
+        self.vw_etc_d_mode_create('virtwho-config', conf_file)
         register_config = self.get_register_config()
         register_server = register_config['server']
         hypervisor_config = self.get_hypervisor_config()
         hypervisor_server = hypervisor_config['ssh_hypervisor']['host']
-        if hypervisor_type == 'rhevm':
-            hypervisor_server = self.get_hostname(hypervisor_config['ssh_hypervisor'])
         good_squid_server = "10.73.3.248:3128"
         wrong_squid_server = "10.73.3.24:3128"
-        types = {'type1':'http_proxy', 'type2':'https_proxy'}
+        types = {'type1': 'http_proxy',
+                 'type2': 'https_proxy'}
 
         # Case Steps
         logger.info(">>>step1: run with good proxy server")
-        for type, option in sorted(types.items(), key=lambda item:item[0]):
-            logger.info(">>%s: run virt-who to check %s" % (type, option))
+        for type, option in sorted(types.items(), key=lambda item: item[0]):
+            logger.info("+++ {0}: run virt-who to check {1} +++".format(type, option))
             if option == "http_proxy":
                 value = "http://{0}".format(good_squid_server)
             if option == "https_proxy":
@@ -45,42 +46,62 @@ class Testcase(Testing):
             self.vw_option_add(option, value, filename=sysconfig_file)
             data, tty_output, rhsm_output = self.vw_start(exp_send=1)
             res1 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-            res2 = self.vw_msg_search(rhsm_output, "Connection built.*%s" % good_squid_server)
-            res3 = self.vw_msg_search(rhsm_output, "Using proxy.*%s" % good_squid_server)
+            res2 = self.vw_msg_search(rhsm_output, "Connection built.*{0}"
+                                      .format(good_squid_server))
+            res3 = self.vw_msg_search(rhsm_output, "Using proxy.*{0}"
+                                      .format(good_squid_server))
             results.setdefault('step1', []).append(res1)
             results.setdefault('step1', []).append(res2)
             results.setdefault('step1', []).append(res3)
             self.vw_option_del(option, filename=sysconfig_file)
 
         logger.info(">>>step2: run with bad proxy server and no_proxy")
-        for type, option in sorted(types.items(), key=lambda item:item[0]):
-            logger.info(">>%s: ------ %s test------" % (type, option))
-            logger.info("> run virt-who with bad {0}".format(option))
+        for type, option in sorted(types.items(), key=lambda item: item[0]):
+            logger.info("=== {0}: bad {1} test ===".format(type, option))
+            logger.info("+++ run virt-who with bad {0} +++".format(option))
             if option == "http_proxy":
                 value = "http://{0}".format(wrong_squid_server)
             if option == "https_proxy":
                 value = "https://{0}".format(wrong_squid_server)
             self.vw_option_add(option, value, filename=sysconfig_file)
             data, tty_output, rhsm_output = self.vw_start(exp_send=0, exp_error=True)
-            error_msg = "Connection refused|Cannot connect to proxy|Connection timed out"
+            error_msg = ["Connection refused|"
+                         "Cannot connect to proxy|"
+                         "Connection timed out"]
             res1 = self.op_normal_value(data, exp_error='1|2', exp_thread=1, exp_send=0)
-            res2 = self.vw_msg_search(rhsm_output, error_msg)
+            res2 = self.msg_validation(rhsm_output, error_msg)
             results.setdefault('step2', []).append(res1)
             results.setdefault('step2', []).append(res2)
-            logger.info("> configure no_proxy=[register_server] in /etc/sysconfig/virt-who")
+
+            logger.info("+++ configure no_proxy=[register_server] "
+                        "in /etc/sysconfig/virt-who +++")
             self.vw_option_add("no_proxy", register_server, sysconfig_file)
-            if hypervisor_type in ('libvirt-remote', 'hyperv', 'kubevirt'):
-                logger.info("virt-who connect hypervisor '{0}' not by proxy".format(hypervisor_type))
+            if (
+                    (
+                            "RHEL-8" in compose_id and hypervisor_type in (
+                            'libvirt-remote', 'hyperv', 'kubevirt')
+                    ) or
+                    (
+                            "RHEL-7" in compose_id and (
+                            ('http_proxy' in option and hypervisor_type in (
+                            'esx', 'libvirt-remote', 'xen', 'rhevm', 'kubevirt'))
+                            or
+                            ('https_proxy' in option and hypervisor_type in (
+                            'libvirt-remote', 'hyperv', 'kubevirt')))
+                    )
+            ):
+                '''virt-who connect hypervisor not by proxy'''
                 data, tty_output, rhsm_output = self.vw_start(exp_send=1)
                 res3 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
                 results.setdefault('step2', []).append(res3)
             else:
-                logger.info("virt-who connect hypervisor '{0}' by proxy".format(hypervisor_type))
+                '''virt-who connect hypervisor by proxy'''
                 error_msg = "Cannot connect to proxy"
                 data, tty_output, rhsm_output = self.vw_start(exp_send=0, exp_error=True)
                 res3 = self.op_normal_value(data, exp_error='1|2', exp_thread=1, exp_send=0)
                 res4 = self.vw_msg_search(rhsm_output, error_msg)
-                logger.info("> Configure no_proxy=[hypervisor_server] and rhsm_no_proxy=[register_server]")
+                logger.info("+++ Configure no_proxy=[hypervisor_server] "
+                            "and rhsm_no_proxy=[register_server] +++")
                 self.vw_option_update_value("no_proxy", hypervisor_server, sysconfig_file)
                 self.vw_option_enable("rhsm_no_proxy", vw_conf)
                 self.vw_option_update_value("rhsm_no_proxy", register_server, vw_conf)
@@ -94,9 +115,12 @@ class Testcase(Testing):
             self.vw_option_disable('rhsm_no_proxy', vw_conf)
 
         # Case Result
-        logger.info("WONTFI bz1716337 - virt-who doesn't connect all hypervisors by proxy")
+        '''WONTFI bz1716337 - virt-who doesn't connect all hypervisors by proxy'''
         notes = list()
         if hypervisor_type == 'xen':
-            notes.append("(step2) [XEN] Succeeded to send mapping but always print errors")
-            notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1739358")
+            notes.append("(step2) [XEN] Print errors when send mapping")
+            if "RHEL-8" in compose_id:
+                notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1739358")
+            elif "RHEL-7" in compose_id:
+                notes.append("Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1764004")
         self.vw_case_result(results, notes)
