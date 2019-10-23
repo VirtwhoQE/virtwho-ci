@@ -42,24 +42,23 @@ class Testcase(Testing):
         try:
             logger.info(">>>step1: set /etc/rhsm/rhsm.conf with good "
                         "proxy_hostname and proxy_port")
-            self.vw_option_update_value("proxy_hostname", proxy_server,
-                                        '/etc/rhsm/rhsm.conf')
-            self.vw_option_update_value("proxy_port", proxy_port,
-                                        '/etc/rhsm/rhsm.conf')
+            self.vw_option_update_value(
+                "proxy_hostname", proxy_server, '/etc/rhsm/rhsm.conf')
+            self.vw_option_update_value("proxy_port", proxy_port, '/etc/rhsm/rhsm.conf')
             data, tty_output, rhsm_output = self.vw_start()
             s1 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
             results.setdefault('step1', []).append(s1)
-            s2 = self.vw_msg_search(rhsm_output,
-                                    "Connection built.*{0}".format(proxy_server))
+            s2 = self.vw_msg_search(
+                rhsm_output, "Connection built.*{0}".format(proxy_server))
             results.setdefault('step1', []).append(s2)
             s3 = self.vw_msg_search(rhsm_output, "Using proxy.*{0}".format(proxy_server))
             results.setdefault('step1', []).append(s3)
 
             logger.info(">>>step2: set wrong proxy in /etc/rhsm/rhsm.conf")
-            self.vw_option_update_value("proxy_hostname", bad_proxy_server,
-                                        '/etc/rhsm/rhsm.conf')
-            self.vw_option_update_value("proxy_port", bad_proxy_port,
-                                        '/etc/rhsm/rhsm.conf')
+            self.vw_option_update_value(
+                "proxy_hostname", bad_proxy_server, '/etc/rhsm/rhsm.conf')
+            self.vw_option_update_value(
+                "proxy_port", bad_proxy_port, '/etc/rhsm/rhsm.conf')
             data, tty_output, rhsm_output = self.vw_start()
             s1 = self.op_normal_value(data, exp_error=1, exp_thread=1, exp_send=0)
             s2 = self.msg_validation(rhsm_output, error_msg, exp_exist=True)
@@ -67,7 +66,8 @@ class Testcase(Testing):
             results.setdefault('step2', []).append(s2)
 
             logger.info(">>>step3: set no_proxy=[server_hostname] in /etc/rhsm/rhsm.conf")
-            self.vw_option_update_value("no_proxy", register_server, '/etc/rhsm/rhsm.conf')
+            self.vw_option_update_value(
+                "no_proxy", register_server, '/etc/rhsm/rhsm.conf')
             data, tty_output, rhsm_output = self.vw_start()
             s1 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
             results.setdefault('step3', []).append(s1)
@@ -83,8 +83,8 @@ class Testcase(Testing):
                         " in /etc/virt-who.conf")
             self.vw_option_enable('[defaults]', '/etc/virt-who.conf')
             self.vw_option_enable('rhsm_no_proxy', '/etc/virt-who.conf')
-            self.vw_option_update_value('rhsm_no_proxy', register_server,
-                                        '/etc/virt-who.conf')
+            self.vw_option_update_value(
+                'rhsm_no_proxy', register_server, '/etc/virt-who.conf')
             data, tty_output, rhsm_output = self.vw_start()
             s1 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
             results.setdefault('step5', []).append(s1)

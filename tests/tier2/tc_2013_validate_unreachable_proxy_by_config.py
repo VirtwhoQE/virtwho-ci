@@ -46,10 +46,10 @@ class Testcase(Testing):
             self.vw_option_add(option, value, filename=sysconfig_file)
             data, tty_output, rhsm_output = self.vw_start(exp_send=1)
             res1 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-            res2 = self.vw_msg_search(rhsm_output, "Connection built.*{0}"
-                                      .format(good_squid_server))
-            res3 = self.vw_msg_search(rhsm_output, "Using proxy.*{0}"
-                                      .format(good_squid_server))
+            res2 = self.vw_msg_search(
+                rhsm_output, "Connection built.*{0}".format(good_squid_server))
+            res3 = self.vw_msg_search(
+                rhsm_output, "Using proxy.*{0}".format(good_squid_server))
             results.setdefault('step1', []).append(res1)
             results.setdefault('step1', []).append(res2)
             results.setdefault('step1', []).append(res3)
@@ -98,7 +98,8 @@ class Testcase(Testing):
                 '''virt-who connect hypervisor by proxy'''
                 error_msg = "Cannot connect to proxy"
                 data, tty_output, rhsm_output = self.vw_start(exp_send=0, exp_error=True)
-                res3 = self.op_normal_value(data, exp_error='1|2', exp_thread=1, exp_send=0)
+                res3 = self.op_normal_value(
+                    data, exp_error='1|2', exp_thread=1, exp_send=0)
                 res4 = self.vw_msg_search(rhsm_output, error_msg)
                 logger.info("+++ Configure no_proxy=[hypervisor_server] "
                             "and rhsm_no_proxy=[register_server] +++")
