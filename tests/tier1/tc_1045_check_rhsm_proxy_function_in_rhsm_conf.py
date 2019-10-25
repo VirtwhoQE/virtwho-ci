@@ -19,18 +19,13 @@ class Testcase(Testing):
         config_name = "virtwho-config"
         config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
         self.vw_etc_d_mode_create(config_name, config_file)
+        register_config = self.get_register_config()
+        register_server = register_config['server']
         if "libvirt-local" in hypervisor_type:
-            register_config = self.get_register_config()
             owner = register_config['owner']
             cmd = "echo -e '[{0}]\ntype=libvirt\nowner={1}' > {2}".format(
                 config_name, owner, config_file)
             ret, output = self.runcmd(cmd, self.ssh_host())
-        register_config = self.get_register_config()
-        register_server = register_config['server']
-        register_type = register_config['type']
-        if "satellite" in register_type:
-            ssh_sat = register_config['ssh_sat']
-            register_server = self.get_hostname(ssh_sat)
         proxy_server = "bootp-73-3-248.eng.pek2.redhat.com"
         proxy_port = "3128"
         bad_proxy_server = "xxx.eng.pek2.redhat.com"
