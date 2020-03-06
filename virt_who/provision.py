@@ -994,12 +994,12 @@ class Provision(Register):
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-8/rel-eng/updates/RHEL-8/{1}/compose/AppStream/x86_64/os".format(
                     base_url, compose_id)
-            if "RHEL-7" in compose_id:
+            elif "RHEL-7" in compose_id:
                 repo_base = "{0}/rhel-7/rel-eng/updates/RHEL-7/{1}/compose/Server/x86_64/os".format(
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-7/rel-eng/updates/RHEL-7/{1}/compose/Server-optional/x86_64/os".format(
                     base_url, compose_id)
-            if "RHEL-6" in compose_id:
+            elif "RHEL-6" in compose_id:
                 rhel_release = compose_id.split('-')[0] + '-' + compose_id.split('-')[1]
                 repo_base = "{0}/rhel-6/rel-eng/updates/{1}/{2}/compose/Server/x86_64/os".format(
                     base_url, rhel_release, compose_id)
@@ -1012,7 +1012,7 @@ class Provision(Register):
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-8/nightly/RHEL-8/{1}/compose/AppStream/x86_64/os".format(
                     base_url, compose_id)
-            if "RHEL-7" in compose_id:
+            elif "RHEL-7" in compose_id:
                 repo_base = "{0}/rhel-7/nightly/RHEL-7/{1}/compose/Server/x86_64/os".format(
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-7/nightly/RHEL-7/{1}/compose/Server-optional/x86_64/os".format(
@@ -1023,12 +1023,12 @@ class Provision(Register):
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-8/rel-eng/RHEL-8/{1}/compose/AppStream/x86_64/os".format(
                     base_url, compose_id)
-            if "RHEL-7" in compose_id:
+            elif "RHEL-7" in compose_id:
                 repo_base = "{0}/rhel-7/rel-eng/RHEL-7/{1}/compose/Server/x86_64/os".format(
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-7/rel-eng/RHEL-7/{1}/compose/Server-optional/x86_64/os".format(
                     base_url, compose_id)
-            if "RHEL-6" in compose_id:
+            elif "RHEL-6" in compose_id:
                 repo_base = "{0}/rhel-6/rel-eng/{1}/compose/Server/x86_64/os".format(
                     base_url, compose_id)
                 repo_extra = "{0}/rhel-6/rel-eng/{1}/compose/Server/optional/x86_64/os/".format(
