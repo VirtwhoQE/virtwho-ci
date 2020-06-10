@@ -53,8 +53,6 @@ class Testcase(Testing):
         data, tty_output, rhsm_output = self.vw_start()
         compose_id = self.get_config('rhel_compose')
         if "RHEL-7" in compose_id:
-            pkg = self.pkg_check(self.ssh_host(), 'python-requests').split('-')[2]
-        if "RHEL-7" in compose_id and pkg[16:21] < '2.20':
             msg = "'password': is not in latin1 encoding"
             res1 = self.op_normal_value(data, exp_error="1|2|3", exp_thread=0, exp_send=0)
             res2 = self.vw_msg_search(rhsm_output, msg, exp_exist=True)
