@@ -114,6 +114,7 @@ class SetRepo(FeatureSettings):
         self.rhel_sat = None
         self.epel = None
         self.rhel8_ftp = None
+        self.brew = None
 
     def read(self, reader):
         self.rhel = reader.get('repo', 'rhel')
@@ -123,6 +124,7 @@ class SetRepo(FeatureSettings):
         self.rhel_sat = reader.get('repo', 'rhel_sat')
         self.epel = reader.get('repo', 'epel')
         self.rhel8_ftp = reader.get('repo', 'rhel8_ftp')
+        self.brew = reader.get('repo', 'brew')
 
 class SetJenkins(FeatureSettings):
     def __init__(self, *args, **kwargs):
@@ -227,6 +229,16 @@ class SetRegister(FeatureSettings):
         self.username = reader.get('register', 'username')
         self.password = reader.get('register', 'password')
         self.employee_sku = reader.get('register', 'employee_sku')
+
+class SetProxy(FeatureSettings):
+    def __init__(self, *args, **kwargs):
+        super(SetProxy, self).__init__(*args, **kwargs)
+        self.server = None
+        self.port = None
+
+    def read(self, reader):
+        self.server = reader.get('proxy', 'server')
+        self.port = reader.get('proxy', 'port')
 
 class SetStage(FeatureSettings):
     def __init__(self, *args, **kwargs):
@@ -565,6 +577,7 @@ class DeploySettings(Settings):
         self.polarion = SetPolarion()
         self.nfs = SetNFS()
         self.register = SetRegister()
+        self.proxy = SetProxy()
         self.stage = SetStage()
         self.satellite = SetSatellite()
         self.vcenter = SetVcenter()
