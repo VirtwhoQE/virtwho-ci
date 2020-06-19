@@ -222,6 +222,7 @@ class SetRegister(FeatureSettings):
         self.username = None
         self.password = None
         self.employee_sku = None
+        self.satellite_sku = None
 
     def read(self, reader):
         self.serverurl = reader.get('register', 'serverurl')
@@ -229,6 +230,7 @@ class SetRegister(FeatureSettings):
         self.username = reader.get('register', 'username')
         self.password = reader.get('register', 'password')
         self.employee_sku = reader.get('register', 'employee_sku')
+        self.satellite_sku = reader.get('register', 'satellite_sku')
 
 class SetProxy(FeatureSettings):
     def __init__(self, *args, **kwargs):

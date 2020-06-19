@@ -1383,7 +1383,7 @@ class Provision(Register):
         return sat_ver, rhel_ver
 
     def satellite_cdn_pool_attach(self, ssh_sat):
-        pool_id = "8a99f9a36df7fa2d016dfbeed744078a"
+        pool_id = deploy.register.satellite_sku
         sat_host = ssh_sat['host']
         cmd = "subscription-manager subscribe --pool={0}".format(pool_id)
         for i in range(10):
