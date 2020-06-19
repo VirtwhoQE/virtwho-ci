@@ -49,18 +49,11 @@ class Testcase(Testing):
 
         logger.info(">>>step3: check '#virt-who -o -c' with wrong config file")
         wrong_file = "xxx"
+        error_msg = "No valid configuration file provided using -c/--config"
         cmd = "virt-who -d -o -c {0}".format(wrong_file)
-        compose_id = self.get_config('rhel_compose')
-        if "RHEL-7" in compose_id:
-            error_msg = "Unable to read configuration file {0}".format(wrong_file)
-            data, tty_output, rhsm_output = self.vw_start(cmd, exp_send=1)
-            res1 = self.op_normal_value(data, exp_error=1, exp_thread=0, exp_send=1)
-            res2 = self.vw_msg_search(tty_output, error_msg, exp_exist=True)
-        else:
-            error_msg = "No valid configuration file provided using -c/--config"
-            data, tty_output, rhsm_output = self.vw_start(cmd, exp_send=0)
-            res1 = self.op_normal_value(data, exp_error=2, exp_thread=0, exp_send=0)
-            res2 = self.vw_msg_search(tty_output, error_msg, exp_exist=True)
+        data, tty_output, rhsm_output = self.vw_start(cmd, exp_send=0)
+        res1 = self.op_normal_value(data, exp_error=2, exp_thread=0, exp_send=0)
+        res2 = self.vw_msg_search(tty_output, error_msg, exp_exist=True)
         results.setdefault('step3', []).append(res1)
         results.setdefault('step3', []).append(res2)
 
