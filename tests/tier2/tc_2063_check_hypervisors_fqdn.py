@@ -8,6 +8,9 @@ from virt_who.testing import Testing
 class Testcase(Testing):
     def test_run(self):
         self.vw_case_info(os.path.basename(__file__), case_id='RHEL-188359')
+        hypervisor_type = self.get_config('hypervisor_type')
+        if hypervisor_type in ('libvirt-local', 'vdsm'):
+            self.vw_case_skip(hypervisor_type)
         self.vw_case_init()
 
         # Case Config
