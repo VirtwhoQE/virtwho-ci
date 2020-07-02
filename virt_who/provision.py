@@ -2061,15 +2061,14 @@ class Provision(Register):
                 if re.match(r"^Version.*:", line):
                     version = line.split(':')[1].strip()
                     logger.info("Succeeded to get the VMware version: {0}".format(version))
-            for line in output.splitlines():
                 if re.match(r"^Uuid.*:", line):
                     s = line.split(':')[1].strip()
-                    if version > "vmx-13":
-                        uuid = s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + "-" + s[19:]
-                    else:
-                        uuid = s
-                    logger.info("Succeeded to get vcenter guest uuid: {0}".format(uuid))
-                    return uuid
+            if version > "vmx-13":
+                uuid = s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + "-" + s[19:]
+            else:
+                uuid = s
+            logger.info("Succeeded to get vcenter guest uuid: {0}".format(uuid))
+            return uuid
         else:
             raise FailException("Failed to get vcenter guest uuid")
 
