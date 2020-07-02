@@ -2057,6 +2057,8 @@ class Provision(Register):
         cmd = "%s Get-VM %s | %%{(Get-View $_.Id).config}" % (cert, guest_name)
         ret, output = self.runcmd(cmd, ssh_vcenter)
         if ret == 0:
+            version = ''
+            uuid = ''
             for line in output.splitlines():
                 if re.match(r"^Version.*:", line):
                     version = line.split(':')[1].strip()
