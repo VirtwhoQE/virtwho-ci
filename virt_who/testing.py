@@ -1130,6 +1130,14 @@ class Testing(Provision):
                 wait_time = 60*(i+3)
                 logger.warning("429 code found, try again after %s seconds..." % wait_time)
                 time.sleep(wait_time)
+                logger.warning("429 code found, re-register virt-who host and try again")
+                register_config = self.get_register_config()
+                register_type = register_config['type']
+                self.runcmd("\cp -f /etc/rhsm/rhsm.conf /root/rhsm429.conf", self.ssh_host())
+                self.system_unregister(self.ssh_host())
+                self.system_register_config(self.ssh_host(), register_type, register_config)
+                self.system_register(self.ssh_host(), register_type, register_config)
+                self.runcmd("mv /root/rhsm429.conf /etc/rhsm/rhsm.conf", self.ssh_host())
             elif len(data['pending_job']) > 0:
                 wait_time = 60*(i+1)
                 logger.warning("Job is not finished, cancel it and try again after %s seconds..." % wait_time)
