@@ -1132,10 +1132,9 @@ class Testing(Provision):
                 register_config = self.get_register_config()
                 register_type = register_config['type']
                 self.runcmd("\cp -f /etc/rhsm/rhsm.conf /root/rhsm429.conf", self.ssh_host())
-                self.system_unregister(self.ssh_host())
                 self.system_register_config(self.ssh_host(), register_type, register_config)
                 self.system_register(self.ssh_host(), register_type, register_config)
-                self.runcmd("mv /root/rhsm429.conf /etc/rhsm/rhsm.conf", self.ssh_host())
+                self.runcmd("mv -f /root/rhsm429.conf /etc/rhsm/rhsm.conf", self.ssh_host())
                 time.sleep(wait_time)
             elif len(data['pending_job']) > 0:
                 wait_time = 60*(i+1)
