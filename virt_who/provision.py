@@ -2064,7 +2064,7 @@ class Provision(Register):
                     version = line.split(':')[1].strip()
                 if re.match(r"^Uuid.*:", line):
                     uuid = line.split(':')[1].strip()
-            if uuid and version:
+            if uuid:
                 if version > "vmx-13":
                     uuid = uuid[6:8] + uuid[4:6] + uuid[2:4] + uuid[0:2] + "-" + uuid[11:13] + uuid[9:11] + "-" + uuid[16:18] + uuid[14:16] + "-" + uuid[19:]
                 logger.info("Succeeded to get vcenter guest uuid: {0}".format(uuid))
