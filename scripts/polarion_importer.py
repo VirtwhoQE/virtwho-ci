@@ -120,7 +120,9 @@ def polarion_xml_init():
             'polarion-testrun-id': testrun_id,
             'polarion-custom-assignee': 'hsun',
             'polarion-custom-isautomated': 'true',
-            'polarion-custom-tags': 'virt-who'}
+            'polarion-custom-component': 'virt-who',
+            'polarion-custom-tags': 'virt-who',
+    }
 
     for name, value in attrs.items():
         attrs = {'name': name,'value': value}
