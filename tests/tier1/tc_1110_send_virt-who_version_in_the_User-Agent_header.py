@@ -30,7 +30,7 @@ class Testcase(Testing):
         logger.info('>>>step2: check the message from console')
         pkg = self.pkg_check(self.ssh_host(), 'virt-who')[9:17]
         msg = 'virt-who/{}'.format(pkg)
-        res2 = self.vw_msg_search(output=tty_output, msg=pkg, exp_exist=True)
+        res2 = self.vw_msg_search(output=tty_output, msg=msg, exp_exist=True)
         results.setdefault('step2', []).append(res2)
 
         # case results
