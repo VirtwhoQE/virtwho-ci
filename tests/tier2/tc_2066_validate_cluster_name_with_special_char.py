@@ -22,8 +22,10 @@ class Testcase(Testing):
         ssh_user = register_config['ssh_user']
         ssh_passwd = register_config['ssh_passwd']
         ssh_register = {"host": server, "username": ssh_user, "password": ssh_passwd}
-        admin_user = register_config['username']
-        admin_passwd = register_config['password']
+
+        self.vw_option_enable('[global]', '/etc/virt-who.conf')
+        self.vw_option_enable('debug', '/etc/virt-who.conf')
+        self.vw_option_update_value('debug', 'True', '/etc/virt-who.conf')
         config_name = "virtwho-config"
         config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
         self.vw_etc_d_mode_create(config_name, config_file)
@@ -48,8 +50,7 @@ class Testcase(Testing):
             logger.info(">>>step3: check the hyperivsor fact by hammer command")
             output = self.satellite_hosts_get(self.ssh_host(), register_config,
                                               host_name, host_uuid, "get hypervisor info")
-            cmd = "hammer -u {0} -p {1} host facts --name {2}".format(
-                admin_user, admin_passwd, output['name'])
+            cmd = "hammer host facts --name {}".format(output['name'])
             _, result = self.runcmd(cmd, ssh_register)
 
             self.vw_msg_search(result, new_cluster_name)
