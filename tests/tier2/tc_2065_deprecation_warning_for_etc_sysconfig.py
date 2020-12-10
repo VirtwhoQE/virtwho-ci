@@ -7,6 +7,9 @@ from virt_who.testing import Testing
 class Testcase(Testing):
     def test_run(self):
         self.vw_case_info(os.path.basename(__file__), case_id='RHEL-195890')
+        compose_id = self.get_config('rhel_compose')
+        if "RHEL-9" in compose_id:
+            self.vw_case_skip("RHEL-9")
         self.vw_case_init()
 
         # case config
