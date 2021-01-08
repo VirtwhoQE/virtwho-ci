@@ -144,7 +144,7 @@ def polarion_xml_update(xml_file, files):
             ts_tests = ts_tests + int(re.findall(r'tests="(.*?)"', line)[0])
             ts_errors = ts_errors + int(re.findall(r'errors="(.*?)"', line)[0])
             ts_failures = ts_failures + int(re.findall(r'failures="(.*?)"', line)[0])
-            ts_skip = ts_skip + int(re.findall(r'skip="(.*?)"', line)[0])
+            ts_skip = ts_skip + int(re.findall(r'skipped="(.*?)"', line)[0])
         res = r'<testsuite .*?>(.*?)</testsuite>'
         cs_lines = re.findall(res, data, re.S|re.M)
         for line in cs_lines:
@@ -212,8 +212,14 @@ def polarion_xml_import(xml_file, testrun_id):
     else:
         logger.error("Failed to import xml to polarion")
 
+def replace_skip(xml_files):
+    for xml_file in xml_files:
+        cmd = 'sed -i "s/skip=/skipped=/g" {0}'.format(xml_file)
+        os.system(cmd)
+
 if __name__ == "__main__":
     files = parser_args(sys.argv[1:])
+    replace_skip(files)
     xml_file, testrun_id = polarion_xml_init()
     polarion_xml_update(xml_file, files)
     polarion_caseid_mapping(xml_file)
