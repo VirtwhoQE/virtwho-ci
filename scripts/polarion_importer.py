@@ -212,14 +212,8 @@ def polarion_xml_import(xml_file, testrun_id):
     else:
         logger.error("Failed to import xml to polarion")
 
-def replace_skip(xml_files):
-    for xml_file in xml_files:
-        cmd = 'sed -i "s/skip=/skipped=/g" {0}'.format(xml_file)
-        os.system(cmd)
-
 if __name__ == "__main__":
     files = parser_args(sys.argv[1:])
-    replace_skip(files)
     xml_file, testrun_id = polarion_xml_init()
     polarion_xml_update(xml_file, files)
     polarion_caseid_mapping(xml_file)
