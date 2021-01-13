@@ -92,7 +92,10 @@ class Testcase(Testing):
         # Case Result
         self.vw_case_result(results)
 
-        '''WONTFI bz1716337 - virt-who doesn't connect all hypervisors by proxy'''
+        '''WONTFIX bz1739358 - [XEN] virt-who can send mapping to server but always print 
+        errors when bad http(s)_proxy and good no_proxy values are configured'''
+
+        '''WONTFIX bz1716337 - virt-who doesn't connect all hypervisors by proxy'''
 
         '''
         For below scenarios, virt-who connect hypervisor not by proxy.
