@@ -705,6 +705,7 @@ class Provision(Register):
     def jenkins_parameter(self, hypervisor_config, register_config):
         parameter = list()
         parameter.append('-d TRIGGER_TYPE={0}'.format(deploy.trigger.type))
+        parameter.append('-d PROVISION_INI={0}'.format(self.get_exported_param("PROVISION_INI")))
         parameter.append('-d VIRTWHO_HOST_IP={0}'.format(hypervisor_config['host_ip']))
         parameter.append('-d VIRTWHO_HOST_USER={0}'.format(hypervisor_config['host_user']))
         parameter.append('-d VIRTWHO_HOST_PASSWD={0}'.format(hypervisor_config['host_passwd']))
