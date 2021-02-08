@@ -51,7 +51,7 @@ class Testcase(Testing):
             results.setdefault('step2', []).append(res2)
 
             logger.info(">>>step3: check the hyperivsor facts")
-            if "satelltie" in register_type:
+            if "satellite" in register_type:
                 output = self.satellite_hosts_get(self.ssh_host(), register_config,
                                                   host_name, host_uuid, desc="get hypervisor info")
                 cmd = "hammer host facts --name {}".format(output['name'])
