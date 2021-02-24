@@ -33,10 +33,10 @@ class Testcase(Testing):
                    'VIRTWHO_DEBUG = 1\n'
                    'VIRTWHO_ONE_SHOT = 0\n'
                    'VIRTWHO_INTERVAL = 120\n'
-                   'http_proxy = squid.corp.redhat.com:3128\n'
+                   'http_proxy = {1}:{2}\n'
                    'no_proxy = *\n'
                    'EOF'
-                   ).format(sysconfig_file)
+                   ).format(sysconfig_file, deploy.proxy.server, deploy.proxy.port)
             self.runcmd(cmd, self.ssh_host())
 
             logger.info(">>>step3: run migrateconfiguration.py script")
