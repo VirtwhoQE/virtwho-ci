@@ -9,14 +9,18 @@ class Testcase(Testing):
     def test_run(self):
         self.vw_case_info(os.path.basename(__file__), case_id='RHEL-198375')
         compose_id = self.get_config('rhel_compose')
-        if compose_id not in ('RHEL-9', 'RHEL9'):
+        if 'RHEL-9' not in compose_id:
             self.vw_case_skip(compose_id)
+        self.vw_case_init()
 
         # Case Config
         results = dict()
         conf_file = "/etc/virt-who.conf"
         conf_file_backup = "/etc/virt-who.conf.backup"
         sysconfig_file = "/etc/sysconfig/virt-who"
+        config_name = "virtwho-config"
+        config_file = "/etc/virt-who.d/{0}.conf".format(config_name)
+        self.vw_etc_d_mode_create(config_name, config_file)
 
         # Case Steps
         try:
@@ -57,8 +61,16 @@ class Testcase(Testing):
             results.setdefault('step4', []).append(msg1 in output)
             results.setdefault('step4', []).append(msg2 in output)
 
+            logger.info(">>>step5: run virt-who to test the migrated options working well")
+            data, tty_output, rhsm_output = self.vw_start(exp_send=1)
+            res1 = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1, exp_interval=120)
+            res2 = self.vw_msg_search(rhsm_output, msg="\[.*DEBUG\]")
+            results.setdefault('step5', []).append(res1)
+            results.setdefault('step5', []).append(res2)
+
+
         finally:
-            logger.info(">>>step5: recover environments")
+            logger.info(">>>step6: recover environments")
             self.runcmd('cp {0} {1} ; rm -f {0}'.format(conf_file_backup, conf_file),
                         self.ssh_host(), desc="recover the /etc/virt-who.conf file")
             self.runcmd('rm -f {0}'.format(sysconfig_file),
