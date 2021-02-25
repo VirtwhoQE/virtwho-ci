@@ -33,7 +33,7 @@ class Testcase(Testing):
         self.runcmd(cmd, self.ssh_host())
         self.vw_option_update_value("kubeconfig", kube_config_file, config_file)
 
-        for option in ("none", "", "0"):
+        for option in ("none", "", "0", "False"):
             if option == "none":
                 logger.info("> run virt-who without insecure= option")
             else:
@@ -47,13 +47,16 @@ class Testcase(Testing):
             results.setdefault('step1', []).append(res2)
             self.vw_option_del("insecure", config_file)
 
-        logger.info(">>>step2: configure insecure=1 and run virt-who")
-        self.vw_option_add("insecure", "1", config_file)
-        data, tty_output, rhsm_output = self.vw_start(exp_error=False, exp_send=1)
-        res = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
-        results.setdefault('step2', []).append(res)
+        logger.info(">>>step2: test insecure=1/True can ignore checking cert")
+        for option in ("1", "True"):
+            logger.info("> configure virt-who run with insecure={0}".format(option))
+            self.vw_option_add("insecure", option, config_file)
+            data, tty_output, rhsm_output = self.vw_start(exp_error=False, exp_send=1)
+            res = self.op_normal_value(data, exp_error=0, exp_thread=1, exp_send=1)
+            results.setdefault('step2', []).append(res)
+            self.vw_option_del("insecure", config_file)
+
         self.runcmd("rm -rf {0}".format(kube_config_file), self.ssh_host())
-        self.vw_option_del("insecure", config_file)
 
         # case result
         self.vw_case_result(results)
