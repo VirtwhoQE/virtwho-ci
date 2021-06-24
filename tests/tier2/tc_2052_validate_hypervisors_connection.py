@@ -80,8 +80,5 @@ class Testcase(Testing):
                 results.setdefault('step3', []).append(False)
 
         # case result
-        if 'kubevirt' in hypervisor_type:
-            self.vw_case_result(results)
-        else:
-            self.vw_case_result(results)
+        self.vw_case_result(results)
 
