@@ -1460,5 +1460,4 @@ class Testing(Provision):
                     status_data[name]['source'] = item['source']
                 if 'destination' in item.keys():
                     status_data[name]['destination'] = item['destination']
-        logger.info(status_data)
         return status_data
