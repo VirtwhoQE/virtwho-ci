@@ -35,9 +35,9 @@ class Testcase(Testing):
         logger.info(">>>step2: Check #virt-who --status")
         status = self.vw_status()
         results.setdefault('step2', []).append(
-            'success' in status[config_name]['source_status'])
-        results.setdefault('step2', []).append(
-            'success' in status[config_name]['destination_status'])
+            'success' in status[config_name]['source_status'] and
+            'success' in status[config_name]['destination_status']
+        )
 
         logger.info(">>>step3: Check #virt-who -s")
         status = self.vw_status(cmd='virt-who -s')
@@ -62,15 +62,15 @@ class Testcase(Testing):
         else:
             source_conn = hypervisor_server
         results.setdefault('step4', []).append(
-            source['connection'] == source_conn
-            and source['status'] == 'success'
-            and source['last_successful_retrieve'].split(' ')[2] == 'UTC'
-            and source['hypervisors'] >= 1
-            and source['guests'] >= 1
-            and destination['connection'] == register_server
-            and destination['status'] == 'success'
-            and destination['last_successful_send'].split(' ')[2] == 'UTC'
-            and destination['last_successful_send_job_status'] == 'FINISHED'
+            source['connection'] == source_conn and
+            source['status'] == 'success' and
+            source['last_successful_retrieve'].split(' ')[2] == 'UTC' and
+            source['hypervisors'] >= 1 and
+            source['guests'] >= 1 and
+            destination['connection'] == register_server and
+            destination['status'] == 'success' and
+            destination['last_successful_send'].split(' ')[2] == 'UTC' and
+            destination['last_successful_send_job_status'] == 'FINISHED'
         )
 
         # case result
