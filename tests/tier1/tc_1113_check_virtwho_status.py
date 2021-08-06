@@ -42,9 +42,9 @@ class Testcase(Testing):
         logger.info(">>>step3: Check #virt-who -s")
         status = self.vw_status(cmd='virt-who -s')
         results.setdefault('step3', []).append(
-            'success' in status[config_name]['source_status'])
-        results.setdefault('step3', []).append(
-            'success' in status[config_name]['destination_status'])
+            'success' in status[config_name]['source_status'] and
+            'success' in status[config_name]['destination_status']
+        )
 
         logger.info(">>>step4: Check #virt-who --status --json")
         json = self.vw_status(if_json=True)
