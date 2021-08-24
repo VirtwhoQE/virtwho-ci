@@ -31,11 +31,6 @@ class Testcase(Testing):
         facts_items = ['socket', 'type', 'dmi', 'version']
         if hypervisor_type in ('esx', 'rhevm', 'ahv'):
             facts_items.append('cluster')
-            cluster_values = {
-                'esx': deploy.vcenter.cluster,
-                'rhevm': deploy.rhevm.cluster,
-                'ahv': deploy.ahv.cluster
-            }
         type_values = {
             'kubevirt': 'qemu',
             'xen': 'XenServer',
@@ -44,6 +39,11 @@ class Testcase(Testing):
             'libvirt-remote': 'QEMU',
             'rhevm': 'qemu',
             'ahv': 'ahv'
+        }
+        cluster_values = {
+            'esx': deploy.vcenter.cluster,
+            'rhevm': deploy.rhevm.cluster,
+            'ahv': deploy.ahv.cluster
         }
 
         # Case Steps
