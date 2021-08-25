@@ -2770,7 +2770,7 @@ class Provision(Register):
 
     def libvirt_guest_stop(self, guest_name, ssh_libvirt):
         host = ssh_libvirt['host']
-        cmd = "virsh destroy {0}".format(guest_name)
+        cmd = "virsh shutdown {0}".format(guest_name)
         ret, output = self.runcmd(cmd, ssh_libvirt, desc="virsh destroy")
         for i in range(10):
             if self.libvirt_guest_status(guest_name, ssh_libvirt) == "shut off":
