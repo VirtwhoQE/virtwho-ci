@@ -2223,16 +2223,15 @@ class Provision(Register):
         else:
             return False
 
-    def hyperv_guest_uuid(self, ssh_hyperv, guest_name):
+    def hyperv_guest_uuid(self, ssh_hyperv):
         cmd = "powershell (gwmi -Namespace Root\Virtualization\V2 -ClassName Msvm_VirtualSystemSettingData).BiosGUID"
         ret, output = self.runcmd(cmd, ssh_hyperv)
         if ret == 0 and output.strip() is not None: 
-            s = output.strip()
-            if s.startswith('{') and s.endswith('}'):
-                s = s[1:-1]
-            uuid = s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + s[18:]
-            logger.info("Succeeded to get hyperv guest uuid: {0}".format(uuid))
-            return uuid
+            guest_uuid = output.strip()
+            if guest_uuid.startswith('{') and guest_uuid.endswith('}'):
+                guest_uuid = guest_uuid[1:-1]
+            logger.info("Succeeded to get hyperv guest uuid: {0}".format(guest_uuid))
+            return guest_uuid
         else:
             raise FailException("Failed to get hyperv guest uuid")
 

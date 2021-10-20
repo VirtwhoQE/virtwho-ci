@@ -288,7 +288,7 @@ class Testing(Provision):
             cert = self.vcenter_cert(config['server'], config['username'], config['password'])
             uuid = self.vcenter_guest_uuid(cert, ssh_hypervisor, guest_name)
         if hypervisor_type == "hyperv":
-            uuid = self.hyperv_guest_uuid(ssh_hypervisor, guest_name)
+            uuid = self.hyperv_guest_uuid(ssh_hypervisor)
         if hypervisor_type == "xen":
             uuid = self.xen_guest_uuid(ssh_hypervisor, guest_name)
         if hypervisor_type == "kubevirt":
