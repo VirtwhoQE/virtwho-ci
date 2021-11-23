@@ -581,6 +581,36 @@ class Register(Base):
                 ret, output = self.runcmd(cmd, ssh)
                 logger.info("Finished to cancel job {0}".format(job_id))
 
+    def stage_sca_enable(self, ssh, register_config):
+        api = register_config['api']
+        username = register_config['username']
+        password = register_config['password']
+        owner = register_config['owner']
+        curl_header = '-H "accept: application/json" -H "Content-Type: application/json"'
+        json_data = json.dumps('{"contentAccessMode":"org_environment"}')
+        cmd = "curl -X PUT -s -k -u {0}:{1} -d {2} {3} {4}/owners/{5}".format(
+            username, password, json_data, curl_header, api, owner)
+        ret, output = self.runcmd(cmd, ssh)
+        if ret == 0 and '"contentAccessMode":"org_environment"' in output:
+            logger.info("Succeeded to enable SCA mode for stage candlepin")
+        else:
+            raise FailException("Failed to enable SCA mode for stage candlepin")
+
+    def stage_sca_disable(self, ssh, register_config):
+        api = register_config['api']
+        username = register_config['username']
+        password = register_config['password']
+        owner = register_config['owner']
+        curl_header = '-H "accept: application/json" -H "Content-Type: application/json"'
+        json_data = json.dumps('{"contentAccessMode":"entitlement"}')
+        cmd = "curl -X PUT -s -k -u {0}:{1} -d {2} {3} {4}/owners/{5}".format(
+            username, password, json_data, curl_header, api, owner)
+        ret, output = self.runcmd(cmd, ssh)
+        if ret == 0 and '"contentAccessMode":"entitlement"' in output:
+            logger.info("Succeeded to disable SCA mode for stage candlepin")
+        else:
+            raise FailException("Failed to disable SCA mode for stage candlepin")
+
     #**************************************
     # Satellite API Function
     #**************************************
