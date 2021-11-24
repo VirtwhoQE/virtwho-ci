@@ -1031,11 +1031,11 @@ class Register(Base):
         username = register_config['username']
         password = register_config['password']
         curl_header = '-H "Accept:application/json" -H "Content-Type:application/json"'
-        cmd = "curl {0} -X PUT -s -k -u {1}:{2} {3}/katello/api/organizations/{4}/upstream_subscriptions/simple_content_access/enable".format(
-                curl_header, username, password, api, org_id)
+        data = "enable"
         if not enable:
-            cmd = "curl {0} -X PUT -s -k -u {1}:{2} {3}/katello/api/organizations/{4}/upstream_subscriptions/simple_content_access/disable".format(
-                curl_header, username, password, api, org_id)
+            data = "disable"
+        cmd = "curl {0} -X PUT -s -k -u {1}:{2} {3}/katello/api/organizations/{4}/upstream_subscriptions/simple_content_access/{5}".format(
+                curl_header, username, password, api, org_id, data)
         ret, output = self.runcmd(cmd, ssh)
         if ret == 0 and output is not False and output is not None and output != "":
             logger.info(f"Succeeded to set satellite with SCA={enable}")
