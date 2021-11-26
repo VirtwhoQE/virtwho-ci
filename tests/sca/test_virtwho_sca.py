@@ -12,7 +12,9 @@ class VirtWhoSCATestCase(Testing):
         super(VirtWhoSCATestCase, cls).setUpClass()
         register_config = cls.get_register_config(cls())
         if 'satellite' in register_config['type']:
-            cls.satellite_sca_enable(cls(), cls.ssh_host(cls()), register_config)
+            cls.satellite_sca_set(cls(), cls.ssh_host(cls()), register_config, enable=True)
+        else:
+            cls.stage_sca_set(cls(), cls.ssh_host(cls()), register_config, enable=True)
         cls.register_owner = register_config['owner']
         cls.vw_case_init(cls())
         cls.vw_etc_conf_disable_all(cls())
@@ -26,6 +28,14 @@ class VirtWhoSCATestCase(Testing):
         cls.host_name = cls.get_hypervisor_hostname(cls())
         cls.guest_name = cls.get_guest_name(cls())
         cls.guest_uuid = cls.get_hypervisor_guestuuid(cls())
+
+    @classmethod
+    def tearDownClass(cls):
+        register_config = cls.get_register_config(cls())
+        if 'satellite' in register_config['type']:
+            cls.satellite_sca_set(cls(), cls.ssh_host(cls()), register_config, enable=False)
+        else:
+            cls.stage_sca_set(cls(), cls.ssh_host(cls()), register_config, enable=False)
 
     def get_guest_name(self):
         return self.get_hostname(self.ssh_guest())
