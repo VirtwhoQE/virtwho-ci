@@ -261,16 +261,16 @@ class Base(unittest.TestCase):
             time.sleep(60)
         else:
             container_name = self.get_hostname(ssh)
-            ssh_docker ={
-                "host" : deploy.docker.server,
-                "username" : deploy.docker.server_user,
-                "password" : deploy.docker.server_passwd,
+            ssh_podman ={
+                "host" : deploy.podman.server,
+                "username" : deploy.podman.server_user,
+                "password" : deploy.podman.server_passwd,
             }
-            logger.info("system({0}) is a container, will restart it by docker".format(host))
-            cmd = "docker restart %s" % container_name
-            ret, output = self.runcmd(cmd, ssh_docker, desc="restart container")
-            cmd = "docker exec -i %s /usr/sbin/sshd" % container_name
-            ret, output = self.runcmd(cmd, ssh_docker, desc="start container ssh")
+            logger.info("system({0}) is a container, will restart it by podman".format(host))
+            cmd = "podman restart %s" % container_name
+            ret, output = self.runcmd(cmd, ssh_podman, desc="restart container")
+            cmd = "podman exec -i %s /usr/sbin/sshd" % container_name
+            ret, output = self.runcmd(cmd, ssh_podman, desc="start container ssh")
             time.sleep(180)
         if self.ssh_is_connected(ssh):
             logger.info('Succeeded to reboot system({0})'.format(host))

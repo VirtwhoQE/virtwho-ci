@@ -149,7 +149,7 @@ class Provision(Register):
             if len(remote_modes) > 0:
                 threads.append(
                     threading.Thread(
-                        target=self.provision_docker_hosts,
+                        target=self.provision_podman_hosts,
                         args=(q, rhel_compose, remote_modes)
                     )
                 )
@@ -187,7 +187,7 @@ class Provision(Register):
                 register_servers.update(item[1])
             if item[0] == "provision_remote_guests":
                 guests.update(item[1])
-            if item[0] == "provision_docker_hosts":
+            if item[0] == "provision_podman_hosts":
                 hosts.update(item[1])
             if item[0] == "provision_rhev_host":
                 if 'virtwho-host-ip' in item[1].keys():
@@ -352,10 +352,10 @@ class Provision(Register):
         self.install_base_packages(ssh_host)
         q.put((func_name, conf_host))
 
-    def provision_docker_hosts(self, q, compose_id, remote_modes):
-        logger.info("Start to provision virt-who docker hosts")
+    def provision_podman_hosts(self, q, compose_id, remote_modes):
+        logger.info("Start to provision virt-who podman hosts")
         func_name = sys._getframe().f_code.co_name
-        conf_hosts = self.docker_compose_setup(compose_id, remote_modes)
+        conf_hosts = self.podman_compose_setup(compose_id, remote_modes)
         q.put((func_name, conf_hosts))
 
     def provision_libvirt_local_host(self, q, compose_id):
@@ -574,8 +574,8 @@ class Provision(Register):
             host_user = deploy.beaker.default_user
             host_passwd = deploy.beaker.default_user
         else:
-            host_user = deploy.docker.container_user
-            host_passwd = deploy.docker.container_passwd
+            host_user = deploy.podman.container_user
+            host_passwd = deploy.podman.container_passwd
         hypervisor_ssh_ip = ""
         hypervisor_ssh_user = ""
         hypervisor_ssh_passwd = ""
@@ -1561,112 +1561,112 @@ class Provision(Register):
         sat_queue.put((sat_type, sat_host))
 
     #*********************************************
-    # Virtwho compose host by docker and beaker
+    # Virtwho compose host by podman and beaker
     #*********************************************
-    def docker_image_exist(self, image_name, ssh_docker):
-        host = ssh_docker['host']
-        cmd = "docker images | grep %s" % image_name
-        ret, output = self.runcmd(cmd, ssh_docker, desc="docker image check")
+    def podman_image_exist(self, image_name, ssh_podman):
+        host = ssh_podman['host']
+        cmd = "podman images | grep %s" % image_name
+        ret, output = self.runcmd(cmd, ssh_podman, desc="podman image check")
         if ret != 0:
-            logger.info("docker image %s is not exist(%s)" % (image_name,host))
+            logger.info("podman image %s is not exist(%s)" % (image_name,host))
             return False
         else:
-            logger.info("docker image %s is ready on %s" % (image_name,host))
+            logger.info("podman image %s is ready on %s" % (image_name,host))
             return True
 
-    def docker_image_delete(self, image_name, ssh_docker):
-        host = ssh_docker['host']
-        if self.docker_image_exist(image_name, ssh_docker) is True:
-            logger.info("Start to delete docker image %s(%s)" % (image_name,host))
-            cmd = "docker ps -a | grep '%s' | awk '{print $1 }'|xargs -I {} docker stop {}" % image_name
-            self.runcmd(cmd, ssh_docker, desc="docker container stop")
-            cmd = "docker ps -a | grep '%s' | awk '{print $1 }'|xargs -I {} docker rm -f {}" % image_name
-            self.runcmd(cmd, ssh_docker, desc="docker container delete")
-            cmd = "docker images | grep none | awk '{print $3 }'|xargs -I {} docker rmi -f {}"
-            self.runcmd(cmd, ssh_docker, desc="docker delete none tag image")
-            cmd = "docker images | grep '%s' | awk '{print $3 }' |xargs -I {} docker rmi -f {}" % image_name
-            self.runcmd(cmd, ssh_docker, desc="docker delete image")
+    def podman_image_delete(self, image_name, ssh_podman):
+        host = ssh_podman['host']
+        if self.podman_image_exist(image_name, ssh_podman) is True:
+            logger.info("Start to delete podman image %s(%s)" % (image_name,host))
+            cmd = "podman ps -a | grep '%s' | awk '{print $1 }'|xargs -I {} podman stop {}" % image_name
+            self.runcmd(cmd, ssh_podman, desc="podman container stop")
+            cmd = "podman ps -a | grep '%s' | awk '{print $1 }'|xargs -I {} podman rm -f {}" % image_name
+            self.runcmd(cmd, ssh_podman, desc="podman container delete")
+            cmd = "podman images | grep none | awk '{print $3 }'|xargs -I {} podman rmi -f {}"
+            self.runcmd(cmd, ssh_podman, desc="podman delete none tag image")
+            cmd = "podman images | grep '%s' | awk '{print $3 }' |xargs -I {} podman rmi -f {}" % image_name
+            self.runcmd(cmd, ssh_podman, desc="podman delete image")
 
-    def docker_image_create(self, ssh_docker, compose_id):
+    def podman_image_create(self, ssh_podman, compose_id):
         image_name = compose_id.lower()
-        if self.docker_image_exist(image_name, ssh_docker) is False:
-            logger.info("Start to create docker image {0}".format(image_name))
-            compose_repo = "/tmp/docker/compose.repo"
-            self.rhel_compose_repo(ssh_docker, compose_id, compose_repo)
-            cmd = "sh /tmp/docker/mk_image.sh -y {0} {1}".format(compose_repo, image_name)
-            logger.info("Command to create docker image: {0}".format(cmd))
-            ret, output = self.runcmd(cmd, ssh_docker)
+        if self.podman_image_exist(image_name, ssh_podman) is False:
+            logger.info("Start to create podman image {0}".format(image_name))
+            compose_repo = "/tmp/podman/compose.repo"
+            self.rhel_compose_repo(ssh_podman, compose_id, compose_repo)
+            cmd = "sh /tmp/podman/mk_image.sh -y {0} {1}".format(compose_repo, image_name)
+            logger.info("Command to create podman image: {0}".format(cmd))
+            ret, output = self.runcmd(cmd, ssh_podman)
             if ret == 0:
                 logger.info("Succeeded to create compose image {0}".format(image_name))
             else:
                 raise FailException("Failed to create compose image {0}".format(image_name))
 
-    def docker_container_exist(self, ssh_docker, keyword):
+    def podman_container_exist(self, ssh_podman, keyword):
         keyword = str(keyword)
-        cmd = "docker ps -a | grep '{0}'".format(keyword)
-        ret, output = self.runcmd(cmd, ssh_docker)
+        cmd = "podman ps -a | grep '{0}'".format(keyword)
+        ret, output = self.runcmd(cmd, ssh_podman)
         if ret == 0 and keyword in output: 
             return True
         else:
             return False
 
-    def docker_container_clean(self, ssh_docker):
-        ret, output = self.runcmd('sh /tmp/docker/rm_containers.sh -d 3', ssh_docker)
+    def podman_container_clean(self, ssh_podman):
+        ret, output = self.runcmd('sh /tmp/podman/rm_containers.sh -d 3', ssh_podman)
         logger.info("Delete all the containers which created above 3 days")
-        ret, output = self.runcmd('docker ps -a |wc -l', ssh_docker)
+        ret, output = self.runcmd('podman ps -a |wc -l', ssh_podman)
         if int(output) > 8:
-            cmd = "docker ps -a | awk '{print $1 }'|xargs -I {} docker stop {}"
-            self.runcmd(cmd, ssh_docker, desc="Stop all containers")
-            cmd = "docker ps -a | awk '{print $1 }'|xargs -I {} docker rm -f {}"
-            self.runcmd(cmd, ssh_docker, desc="Delete all containers")
+            cmd = "podman ps -a | awk '{print $1 }'|xargs -I {} podman stop {}"
+            self.runcmd(cmd, ssh_podman, desc="Stop all containers")
+            cmd = "podman ps -a | awk '{print $1 }'|xargs -I {} podman rm -f {}"
+            self.runcmd(cmd, ssh_podman, desc="Delete all containers")
 
-    def docker_container_port(self, ssh_docker):
+    def podman_container_port(self, ssh_podman):
         port = random.randint(53220, 60000)
-        while self.docker_container_exist(ssh_docker, port):
+        while self.podman_container_exist(ssh_podman, port):
             port = random.randint(53220, 60000)
         return str(port)
 
-    def docker_container_create(self, ssh_docker, image_name, cont_name, cont_user, cont_passwd, cont_port):
-        host = ssh_docker['host']
-        cmd = "sh /tmp/docker/mk_container.sh -i {0} -c {1} -o {2} -u {3} -p {4}"\
+    def podman_container_create(self, ssh_podman, image_name, cont_name, cont_user, cont_passwd, cont_port):
+        host = ssh_podman['host']
+        cmd = "sh /tmp/podman/mk_container.sh -i {0} -c {1} -o {2} -u {3} -p {4}"\
                 .format(image_name, cont_name, cont_port, cont_user, cont_passwd)
-        self.runcmd(cmd, ssh_docker)
+        self.runcmd(cmd, ssh_podman)
         is_created = ""
-        if self.docker_container_exist(ssh_docker, cont_port) and self.docker_container_exist(ssh_docker, cont_name):
+        if self.podman_container_exist(ssh_podman, cont_port) and self.podman_container_exist(ssh_podman, cont_name):
             is_created = "Yes"
             logger.info("Succeeded to create container: {0}:{1}".format(cont_name, cont_port))
         else:
-            logger.info("Command to create docker container: {0}".format(cmd))
+            logger.info("Command to create podman container: {0}".format(cmd))
             logger.error("Failed to create container: {0}".format(cont_name))
         if is_created == "Yes":
             return True
         else:
             return False
 
-    def docker_compose_setup(self, compose_id, remote_modes):
+    def podman_compose_setup(self, compose_id, remote_modes):
         conf_hosts = dict()
-        server = deploy.docker.server
-        server_user = deploy.docker.server_user
-        server_passwd = deploy.docker.server_passwd
-        ssh_docker ={"host":server,"username":server_user,"password":server_passwd}
-        container_user = deploy.docker.container_user
-        container_passwd = deploy.docker.container_passwd
+        server = deploy.podman.server
+        server_user = deploy.podman.server_user
+        server_passwd = deploy.podman.server_passwd
+        ssh_podman ={"host":server,"username":server_user,"password":server_passwd}
+        container_user = deploy.podman.container_user
+        container_passwd = deploy.podman.container_passwd
         image_name = compose_id.lower()
-        self.runcmd("docker system prune -f", ssh_docker, desc="clean docker cache")
+        self.runcmd("podman system prune -f", ssh_podman, desc="clean podman cache")
         root_path = os.path.abspath(os.path.join(os.getcwd(), "../"))
-        local_dir = os.path.join(root_path,'docker/')
-        remote_dir = "/tmp/docker/"
-        self.runcmd("rm -rf /tmp/docker/; rm -rf /tmp/mkimage*; rm -f /etc/yum.repos.d/*.repo", ssh_docker)
-        self.runcmd("subscription-manager unregister", ssh_docker)
-        self.runcmd("subscription-manager clean", ssh_docker)
-        self.paramiko_putdir(ssh_docker, local_dir, remote_dir)
-        self.docker_image_create(ssh_docker, compose_id)
-        self.docker_container_clean(ssh_docker)
+        local_dir = os.path.join(root_path,'podman/')
+        remote_dir = "/tmp/podman/"
+        self.runcmd("rm -rf /tmp/podman/; rm -rf /tmp/mkimage*; rm -f /etc/yum.repos.d/*.repo", ssh_podman)
+        self.runcmd("subscription-manager unregister", ssh_podman)
+        self.runcmd("subscription-manager clean", ssh_podman)
+        self.paramiko_putdir(ssh_podman, local_dir, remote_dir)
+        self.podman_image_create(ssh_podman, compose_id)
+        self.podman_container_clean(ssh_podman)
         for mode in remote_modes:
-            container_port = self.docker_container_port(ssh_docker)
+            container_port = self.podman_container_port(ssh_podman)
             container_name = image_name.replace('.', '-') + "-" + mode.strip() + "-" + container_port + ".redhat.com"
-            if self.docker_container_create(
-                    ssh_docker, image_name, container_name, container_user, container_passwd, container_port):
+            if self.podman_container_create(
+                    ssh_podman, image_name, container_name, container_user, container_passwd, container_port):
                 ip_value = "{0}:{1}".format(server, container_port)
                 ip_name = "virtwho-host-{0}-ip".format(mode)
                 conf_hosts[ip_name] = ip_value

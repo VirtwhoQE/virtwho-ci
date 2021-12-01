@@ -134,9 +134,9 @@ class SetJenkins(FeatureSettings):
         self.username = reader.get('jenkins', 'username')
         self.password = reader.get('jenkins', 'password')
 
-class SetDocker(FeatureSettings):
+class SetPodman(FeatureSettings):
     def __init__(self, *args, **kwargs):
-        super(SetDocker, self).__init__(*args, **kwargs)
+        super(SetPodman, self).__init__(*args, **kwargs)
         self.server = None
         self.server_user = None
         self.server_passwd = None
@@ -147,14 +147,14 @@ class SetDocker(FeatureSettings):
         self.container_passwd = None
 
     def read(self, reader):
-        self.server = reader.get('docker', 'server')
-        self.server_user = reader.get('docker', 'server_user')
-        self.server_passwd = reader.get('docker', 'server_passwd')
-        self.slave = reader.get('docker', 'slave')
-        self.slave_user = reader.get('docker', 'slave_user')
-        self.slave_passwd = reader.get('docker', 'slave_passwd')
-        self.container_user = reader.get('docker', 'container_user')
-        self.container_passwd = reader.get('docker', 'container_passwd')
+        self.server = reader.get('podman', 'server')
+        self.server_user = reader.get('podman', 'server_user')
+        self.server_passwd = reader.get('podman', 'server_passwd')
+        self.slave = reader.get('podman', 'slave')
+        self.slave_user = reader.get('podman', 'slave_user')
+        self.slave_passwd = reader.get('podman', 'slave_passwd')
+        self.container_user = reader.get('podman', 'container_user')
+        self.container_passwd = reader.get('podman', 'container_passwd')
 
 class SetBeaker(FeatureSettings):
     def __init__(self, *args, **kwargs):
@@ -608,7 +608,7 @@ class DeploySettings(Settings):
         self.trigger = SetTrigger()
         self.repo = SetRepo()
         self.jenkins = SetJenkins()
-        self.docker = SetDocker()
+        self.podman = SetPodman()
         self.beaker = SetBeaker()
         self.polarion = SetPolarion()
         self.nfs = SetNFS()

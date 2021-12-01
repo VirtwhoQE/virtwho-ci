@@ -59,25 +59,25 @@ container_name=$(echo "$container_name" | tr '[:upper:]' '[:lower:]')
 
 if [[ $container_name =~ "rhel6" ]] || [[ $container_name =~ "rhel-6" ]] || [[ $container_name =~ "rhel.6" ]]
 then
-    docker run --privileged -itd --hostname $container_name --name $container_name -p $container_port:22 $image_name bash
+    podman run --privileged -itd --hostname $container_name --name $container_name -p $container_port:22 $image_name bash
 else
-    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $container_name --name $container_name -p $container_port:22 $image_name /usr/sbin/init
+    podman run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $container_name --name $container_name -p $container_port:22 $image_name /usr/sbin/init
 fi
 
-echo -e "${container_user}:${container_password}" | docker exec -i $container_name chpasswd
-docker exec -i $container_name ifconfig
-docker exec -i $container_name hostname $container_name
+echo -e "${container_user}:${container_password}" | podman exec -i $container_name chpasswd
+podman exec -i $container_name ifconfig
+podman exec -i $container_name hostname $container_name
 if [[ $container_name =~ "rhel9" ]] || [[ $container_name =~ "rhel-9" ]] || [[ $container_name =~ "rhel.9" ]]
 then
-    docker exec -i $container_name sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
-    docker exec -i $container_name sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
+    podman exec -i $container_name sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+    podman exec -i $container_name sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
 else
-    docker exec -i $container_name sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
+    podman exec -i $container_name sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 fi
-docker exec -i $container_name sed -i 's/#UseDNS yes/UseDNS no/g' /etc/ssh/sshd_config
-docker exec -i $container_name sed -i 's/GSSAPIAuthentication yes/GSSAPIAuthentication no/g' /etc/ssh/sshd_config
-docker exec -i $container_name sed -i 's/#X11UseLocalhost yes/X11UseLocalhost no/g' /etc/ssh/sshd_config
-docker exec -i $container_name rm -rf /.dockerenv
-echo -e "" | docker exec -i $container_name ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key > /dev/null 2>&1
-echo -e "" | docker exec -i $container_name ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key > /dev/null 2>&1
-docker exec -i $container_name /usr/sbin/sshd
+podman exec -i $container_name sed -i 's/#UseDNS yes/UseDNS no/g' /etc/ssh/sshd_config
+podman exec -i $container_name sed -i 's/GSSAPIAuthentication yes/GSSAPIAuthentication no/g' /etc/ssh/sshd_config
+podman exec -i $container_name sed -i 's/#X11UseLocalhost yes/X11UseLocalhost no/g' /etc/ssh/sshd_config
+podman exec -i $container_name rm -rf /.dockerenv
+echo -e "" | podman exec -i $container_name ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key > /dev/null 2>&1
+echo -e "" | podman exec -i $container_name ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key > /dev/null 2>&1
+podman exec -i $container_name /usr/sbin/sshd

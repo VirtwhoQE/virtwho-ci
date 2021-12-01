@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Create a base RHEL/Centos Docker image.
+# Create a base RHEL/Centos podman image.
 #
 # This script is useful on systems with yum installed (e.g., building
 # a RHEL/CentOS image).
@@ -187,10 +187,10 @@ if [ -z "$version" ]; then
     version=$name
 fi
 
-tar --numeric-owner -c -C "$target" . | docker import - $name
+tar --numeric-owner -c -C "$target" . | podman import - $name
 
-docker images | grep "$name"
-#docker run -i -t --rm $name /bin/bash -c 'echo success'
+podman images | grep "$name"
+#podman run -i -t --rm $name /bin/bash -c 'echo success'
 
 rm -rf "$target"
 

@@ -38,4 +38,4 @@ if [ $# -eq 0 ]; then usage; fi
 if [ "$created_days" == "" ]; then usage; fi
 
 # will  
-docker ps -a --format "{{.ID}} {{.CreatedAt}}" | while read id cdate ctime _; do if [[ $(date +%s -d "$cdate $ctime") -lt $(date +%s -d "$created_days days ago") ]]; then docker kill $id; docker rm $id; fi; done
+podman ps -a --format "{{.ID}} {{.CreatedAt}}" | while read id cdate ctime _; do if [[ $(date +%s -d "$cdate $ctime") -lt $(date +%s -d "$created_days days ago") ]]; then podman kill $id; podman rm $id; fi; done
