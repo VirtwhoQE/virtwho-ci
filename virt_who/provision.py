@@ -1210,7 +1210,7 @@ class Provision(Register):
         reserve = "--reserve --reserve-duration 259200 --priority Urgent"
         job_group = "--job-group=virt-who-ci-server-group"
         if os_type == "virtual":
-            satellite_vm = f'''--hostrequire "<and><system><name op='like' value='{deploy.trigger.satellite_beaker_host}'/></system></and>"'''
+            satellite_vm = f'''--hostrequire "<and><system><name op='like' value='{deploy.trigger.satellite_host}'/></system></and>"'''
             hostrequire = '''{0} --hostrequire "hypervisor!=" --hostrequire "memory > 7000"'''.format(satellite_vm)
         else:
             hostrequire = '''--hostrequire "hypervisor=" --hostrequire "memory > 7000"'''
