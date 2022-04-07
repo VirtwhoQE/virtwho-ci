@@ -70,7 +70,7 @@ class SetTrigger(FeatureSettings):
         self.rhel_compose = None
         self.hypervisor_list = None
         self.register_list = None
-        self.satellite_beaker_host = None
+        self.satellite_host = None
         self.rhev_iso = None
         self.brew_package = None
         self.virtwho_upstream = None
