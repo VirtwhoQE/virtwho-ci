@@ -139,13 +139,13 @@ class Provision(Register):
                     args=(q, remote_modes)
                 )
             )
-        if deploy.trigger.type == "trigger-rhev":
-            threads.append(
-                threading.Thread(
-                    target=self.provision_rhev_host,
-                    args=(q,)
-                )
-            )
+        # if deploy.trigger.type == "trigger-rhev":
+        #     threads.append(
+        #         threading.Thread(
+        #             target=self.provision_rhev_host,
+        #             args=(q,)
+        #         )
+        #     )
         elif deploy.trigger.type == "trigger-multiarch":
             threads.append(
                 threading.Thread(
@@ -168,13 +168,13 @@ class Provision(Register):
                         args=(q, rhel_compose)
                     )
                 )
-            if "vdsm" in local_modes:
-                threads.append(
-                    threading.Thread(
-                        target=self.provision_vdsm_host,
-                        args=(q, rhel_compose)
-                    )
-                )
+            # if "vdsm" in local_modes:
+            #     threads.append(
+            #         threading.Thread(
+            #             target=self.provision_vdsm_host,
+            #             args=(q, rhel_compose)
+            #         )
+            #     )
         for t in threads:
             t.start()
         for t in threads:
@@ -318,28 +318,28 @@ class Provision(Register):
             conf_guests[item[0]] = item[1]
         q.put((func_name, conf_guests))
 
-    def provision_rhev_host(self, q):
-        func_name = sys._getframe().f_code.co_name
-        logger.info("Start to provision rhev host and guest")
-        rhev_iso = deploy.trigger.rhev_iso
-        rhev_host = deploy.vdsm.master
-        rhev_user = deploy.vdsm.master_user
-        rhev_passwd = deploy.vdsm.master_passwd
-        conf_host = dict()
-        conf_guest = dict()
-        ssh_rhev = {
-            "host": rhev_host,
-            "username": rhev_user,
-            "password": rhev_passwd
-        }
-        self.rhev_install_by_grub(ssh_rhev, rhev_iso)
-        self.system_init("ci-host-rhev", ssh_rhev)
-        self.ssh_no_passwd_access(ssh_rhev)
-        self.install_epel_packages(ssh_rhev)
-        guest_ip = self.guest_vdsm_setup(ssh_rhev)
-        conf_host["virtwho-host-ip"] = rhev_host
-        conf_guest["vdsm-guest-ip"] = guest_ip
-        q.put((func_name, conf_host, conf_guest))
+    # def provision_rhev_host(self, q):
+    #     func_name = sys._getframe().f_code.co_name
+    #     logger.info("Start to provision rhev host and guest")
+    #     rhev_iso = deploy.trigger.rhev_iso
+    #     rhev_host = deploy.vdsm.master
+    #     rhev_user = deploy.vdsm.master_user
+    #     rhev_passwd = deploy.vdsm.master_passwd
+    #     conf_host = dict()
+    #     conf_guest = dict()
+    #     ssh_rhev = {
+    #         "host": rhev_host,
+    #         "username": rhev_user,
+    #         "password": rhev_passwd
+    #     }
+    #     self.rhev_install_by_grub(ssh_rhev, rhev_iso)
+    #     self.system_init("ci-host-rhev", ssh_rhev)
+    #     self.ssh_no_passwd_access(ssh_rhev)
+    #     self.install_epel_packages(ssh_rhev)
+    #     guest_ip = self.guest_vdsm_setup(ssh_rhev)
+    #     conf_host["virtwho-host-ip"] = rhev_host
+    #     conf_guest["vdsm-guest-ip"] = guest_ip
+    #     q.put((func_name, conf_host, conf_guest))
 
     def provision_arch_host(self, q, compose_id):
         func_name = sys._getframe().f_code.co_name
@@ -387,26 +387,26 @@ class Provision(Register):
         conf_guest["libvirt-local-guest-ip"] = guest_ip
         q.put((func_name, conf_host, conf_guest))
 
-    def provision_vdsm_host(self, q, compose_id):
-        logger.info("Start to provision vdsm host and its guest")
-        func_name = sys._getframe().f_code.co_name
-        conf_host = dict()
-        conf_guest = dict()
-        master = deploy.vdsm.master
-        master_user = deploy.vdsm.master_user
-        master_passwd = deploy.vdsm.master_passwd
-        ssh_vdsm = {
-            "host": master,
-            "username": master_user,
-            "password": master_passwd
-        }
-        self.rhel_install_by_grub(ssh_vdsm, compose_id)
-        self.system_init("ci-host-vdsm", ssh_vdsm)
-        self.ssh_no_passwd_access(ssh_vdsm)
-        guest_ip = self.guest_vdsm_setup(ssh_vdsm)
-        conf_host["vdsm-host-ip"] = master
-        conf_guest["vdsm-guest-ip"] = guest_ip
-        q.put((func_name, conf_host, conf_guest))
+    # def provision_vdsm_host(self, q, compose_id):
+    #     logger.info("Start to provision vdsm host and its guest")
+    #     func_name = sys._getframe().f_code.co_name
+    #     conf_host = dict()
+    #     conf_guest = dict()
+    #     master = deploy.vdsm.master
+    #     master_user = deploy.vdsm.master_user
+    #     master_passwd = deploy.vdsm.master_passwd
+    #     ssh_vdsm = {
+    #         "host": master,
+    #         "username": master_user,
+    #         "password": master_passwd
+    #     }
+    #     self.rhel_install_by_grub(ssh_vdsm, compose_id)
+    #     self.system_init("ci-host-vdsm", ssh_vdsm)
+    #     self.ssh_no_passwd_access(ssh_vdsm)
+    #     guest_ip = self.guest_vdsm_setup(ssh_vdsm)
+    #     conf_host["vdsm-host-ip"] = master
+    #     conf_guest["vdsm-guest-ip"] = guest_ip
+    #     q.put((func_name, conf_host, conf_guest))
 
     #*************************************************
     # Jenkins Job Scheduler 
@@ -512,11 +512,11 @@ class Provision(Register):
                 password = deploy.stage.kubevirt_passwd
                 owner = deploy.stage.kubevirt_org
                 env = deploy.stage.kubevirt_org
-            if "vdsm" in job_name:
-                username = deploy.stage.vdsm_user
-                password = deploy.stage.vdsm_passwd
-                owner = deploy.stage.vdsm_org
-                env = deploy.stage.vdsm_org
+            # if "vdsm" in job_name:
+            #     username = deploy.stage.vdsm_user
+            #     password = deploy.stage.vdsm_passwd
+            #     owner = deploy.stage.vdsm_org
+            #     env = deploy.stage.vdsm_org
             if "libvirt-remote" in job_name:
                 username = deploy.stage.libvirt_remote_user
                 password = deploy.stage.libvirt_remote_passwd
@@ -644,20 +644,20 @@ class Provision(Register):
             guest_name = deploy.rhevm.guest_name
             guest_user = deploy.rhevm.guest_user
             guest_passwd = deploy.rhevm.guest_passwd
-        if "vdsm" in job_name:
-            hypervisor_type = "vdsm"
-            rhevm_ip =  deploy.vdsm.rhevm_ip
-            hypervisor_ssh_user = deploy.vdsm.rhevm_ssh_user
-            hypervisor_ssh_passwd = deploy.vdsm.rhevm_ssh_passwd
-            ssh_rhevm = {'host':rhevm_ip,'username':hypervisor_ssh_user,'password':hypervisor_ssh_passwd}
-            hypervisor_server = self.rhevm_admin_get(ssh_rhevm)
-            hypervisor_user = deploy.vdsm.rhevm_admin_user
-            hypervisor_passwd = deploy.vdsm.rhevm_admin_passwd
-            host_user = deploy.vdsm.master_user
-            host_passwd = deploy.vdsm.master_passwd
-            guest_name = deploy.vdsm.guest_name
-            guest_user = deploy.vdsm.guest_user
-            guest_passwd = deploy.vdsm.guest_passwd
+        # if "vdsm" in job_name:
+        #     hypervisor_type = "vdsm"
+        #     rhevm_ip =  deploy.vdsm.rhevm_ip
+        #     hypervisor_ssh_user = deploy.vdsm.rhevm_ssh_user
+        #     hypervisor_ssh_passwd = deploy.vdsm.rhevm_ssh_passwd
+        #     ssh_rhevm = {'host':rhevm_ip,'username':hypervisor_ssh_user,'password':hypervisor_ssh_passwd}
+        #     hypervisor_server = self.rhevm_admin_get(ssh_rhevm)
+        #     hypervisor_user = deploy.vdsm.rhevm_admin_user
+        #     hypervisor_passwd = deploy.vdsm.rhevm_admin_passwd
+        #     host_user = deploy.vdsm.master_user
+        #     host_passwd = deploy.vdsm.master_passwd
+        #     guest_name = deploy.vdsm.guest_name
+        #     guest_user = deploy.vdsm.guest_user
+        #     guest_passwd = deploy.vdsm.guest_passwd
         if "libvirt-remote" in job_name:
             hypervisor_type = "libvirt-remote"
             hypervisor_server = deploy.libvirt.remote
@@ -1793,35 +1793,18 @@ class Provision(Register):
         rhevm_ip = deploy.rhevm.rhevm_ip
         rhevm_ssh_user = deploy.rhevm.rhevm_ssh_user
         rhevm_ssh_passwd = deploy.rhevm.rhevm_ssh_passwd
-        rhevm_admin_user = deploy.rhevm.rhevm_admin_user
-        rhevm_admin_passwd = deploy.rhevm.rhevm_admin_passwd
-        master = deploy.rhevm.master
-        master_user = deploy.rhevm.master_user
-        master_passwd = deploy.rhevm.master_passwd
         guest_name = deploy.rhevm.guest_name
         guest_user = deploy.rhevm.guest_user
         guest_passwd = deploy.rhevm.guest_passwd
-        cluster = deploy.rhevm.cluster
-        cputype = deploy.rhevm.cputype
-        template = deploy.rhevm.template
-        disk = deploy.rhevm.disk
-        datacenter = deploy.rhevm.datacenter
-        storage = deploy.rhevm.storage
         # set ssh env for rhevm, master
-        ssh_rhevm = {"host":rhevm_ip,"username":rhevm_ssh_user,"password":rhevm_ssh_passwd}
-        ssh_master = {"host":master,"username":master_user,"password":master_passwd}
-        rhevm_version = self.rhevm_version_get(ssh_rhevm)
-        rhevm_admin_server = self.rhevm_admin_get(ssh_rhevm)
-        rhevm_shell, rhevm_shellrc = self.rhevm_shell_get(ssh_rhevm)
-        self.rhevm_shell_config(ssh_rhevm, rhevm_admin_server, rhevm_admin_user, rhevm_admin_passwd)
-        self.rhevm_cpu_set(ssh_rhevm, rhevm_shell, cluster, cputype)
-        guest_ip = self.rhevm_guest_ip(ssh_rhevm, rhevm_shell, ssh_master, guest_name)
-        if not guest_ip:
-            self.rhevm_template_ready(ssh_rhevm, rhevm_shell, template, disk)
-            self.rhevm_host_ready(ssh_rhevm, rhevm_shell, ssh_master, datacenter, storage)
-            guest_ip = self.rhevm_guest_add(ssh_rhevm, rhevm_shell, ssh_master, guest_name, template, cluster, disk)
-        logger.info("Succeeded to get rhevm({0}) guest ip: {1} for rhevm mode".format(rhevm_ip, guest_ip))
-        ssh_guest = {"host":guest_ip, "username":guest_user, "password":guest_passwd}
+        ssh_rhevm = {"host": rhevm_ip, "username": rhevm_ssh_user,
+                     "password": rhevm_ssh_passwd}
+        guest_ip = self.rhevm_guest_ip(ssh_rhevm, guest_name)
+        logger.info(
+            "Succeeded to get rhevm({0}) guest ip: {1} for rhevm mode".format(
+                rhevm_ip, guest_ip))
+        ssh_guest = {"host": guest_ip, "username": guest_user,
+                     "password": guest_passwd}
         self.system_init("ci-guest-rhevm", ssh_guest)
         mode_queue.put((mode_type, guest_ip))
 
@@ -1863,36 +1846,36 @@ class Provision(Register):
         self.system_init("ci-guest-libvirt-local", ssh_guest)
         return guest_ip
 
-    def guest_vdsm_setup(self, ssh_vdsm):
-        rhevm_ip = deploy.vdsm.rhevm_ip
-        rhevm_ssh_user = deploy.vdsm.rhevm_ssh_user
-        rhevm_ssh_passwd = deploy.vdsm.rhevm_ssh_passwd
-        rhevm_admin_user = deploy.vdsm.rhevm_admin_user
-        rhevm_admin_passwd = deploy.vdsm.rhevm_admin_passwd
-        guest_name = deploy.vdsm.guest_name
-        guest_user = deploy.vdsm.guest_user
-        guest_passwd = deploy.vdsm.guest_passwd
-        cluster = deploy.vdsm.cluster
-        cputype = deploy.vdsm.cputype
-        template = deploy.vdsm.template
-        disk = deploy.vdsm.disk
-        datacenter = deploy.vdsm.datacenter
-        storage = deploy.vdsm.storage
-        ssh_rhevm = {"host":rhevm_ip,"username":rhevm_ssh_user,"password":rhevm_ssh_passwd}
-        rhevm_version = self.rhevm_version_get(ssh_rhevm)
-        rhevm_admin_server = self.rhevm_admin_get(ssh_rhevm)
-        rhevm_shell, rhevm_shellrc = self.rhevm_shell_get(ssh_rhevm)
-        self.vdsm_host_init(ssh_vdsm, rhevm_version)
-        self.rhevm_shell_config(ssh_rhevm, rhevm_admin_server, rhevm_admin_user, rhevm_admin_passwd)
-        self.rhevm_cpu_set(ssh_rhevm, rhevm_shell, cluster, cputype)
-        self.rhevm_template_ready(ssh_rhevm, rhevm_shell, template, disk)
-        self.rhevm_hosts_all_clean(ssh_rhevm, rhevm_shell)
-        self.rhevm_host_ready(ssh_rhevm, rhevm_shell, ssh_vdsm, datacenter, storage)
-        guest_ip = self.rhevm_guest_add(ssh_rhevm, rhevm_shell, ssh_vdsm, guest_name, template, cluster, disk)
-        logger.info("Succeeded to get rhevm({0}) guest ip: {1} for vdsm mode".format(rhevm_ip, guest_ip))
-        ssh_guest = {"host":guest_ip, "username":guest_user, "password":guest_passwd}
-        self.system_init("ci-guest-vdsm", ssh_guest)
-        return guest_ip
+    # def guest_vdsm_setup(self, ssh_vdsm):
+    #     rhevm_ip = deploy.vdsm.rhevm_ip
+    #     rhevm_ssh_user = deploy.vdsm.rhevm_ssh_user
+    #     rhevm_ssh_passwd = deploy.vdsm.rhevm_ssh_passwd
+    #     rhevm_admin_user = deploy.vdsm.rhevm_admin_user
+    #     rhevm_admin_passwd = deploy.vdsm.rhevm_admin_passwd
+    #     guest_name = deploy.vdsm.guest_name
+    #     guest_user = deploy.vdsm.guest_user
+    #     guest_passwd = deploy.vdsm.guest_passwd
+    #     cluster = deploy.vdsm.cluster
+    #     cputype = deploy.vdsm.cputype
+    #     template = deploy.vdsm.template
+    #     disk = deploy.vdsm.disk
+    #     datacenter = deploy.vdsm.datacenter
+    #     storage = deploy.vdsm.storage
+    #     ssh_rhevm = {"host":rhevm_ip,"username":rhevm_ssh_user,"password":rhevm_ssh_passwd}
+    #     rhevm_version = self.rhevm_version_get(ssh_rhevm)
+    #     rhevm_admin_server = self.rhevm_admin_get(ssh_rhevm)
+    #     rhevm_shell, rhevm_shellrc = self.rhevm_shell_get(ssh_rhevm)
+    #     self.vdsm_host_init(ssh_vdsm, rhevm_version)
+    #     self.rhevm_shell_config(ssh_rhevm, rhevm_admin_server, rhevm_admin_user, rhevm_admin_passwd)
+    #     self.rhevm_cpu_set(ssh_rhevm, rhevm_shell, cluster, cputype)
+    #     self.rhevm_template_ready(ssh_rhevm, rhevm_shell, template, disk)
+    #     self.rhevm_hosts_all_clean(ssh_rhevm, rhevm_shell)
+    #     self.rhevm_host_ready(ssh_rhevm, rhevm_shell, ssh_vdsm, datacenter, storage)
+    #     guest_ip = self.rhevm_guest_add(ssh_rhevm, rhevm_shell, ssh_vdsm, guest_name, template, cluster, disk)
+    #     logger.info("Succeeded to get rhevm({0}) guest ip: {1} for vdsm mode".format(rhevm_ip, guest_ip))
+    #     ssh_guest = {"host":guest_ip, "username":guest_user, "password":guest_passwd}
+    #     self.system_init("ci-guest-vdsm", ssh_guest)
+    #     return guest_ip
 
     #*********************************************
     # Hypervisor ESXi Function
