@@ -47,7 +47,7 @@ class Provision(Register):
             remote_modes.append("kubevirt")
         if "libvirt-remote" in hypervisor_list:
             remote_modes.append("libvirt-remote")
-        if "ahv" in hypervisor_list:
+        if "ahv2.0" in hypervisor_list or "ahv3.0" in hypervisor_list:
             remote_modes.append("ahv")
         if "libvirt-local" in hypervisor_list:
             local_modes.append("libvirt-local")
