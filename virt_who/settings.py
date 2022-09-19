@@ -1,4 +1,5 @@
 import os, sys
+from virt_who import *
 from configparser import ConfigParser
 
 def get_exported_param(name):
@@ -596,18 +597,22 @@ class SetAhv(FeatureSettings):
         self.guest_uuid = None
 
     def read(self, reader):
-        self.master = reader.get('ahv', 'master')
-        self.master_user = reader.get('ahv', 'master_user')
-        self.master_passwd = reader.get('ahv', 'master_passwd')
-        self.cluster = reader.get('ahv', 'cluster')
-        self.api_version = reader.get('ahv', 'api_version')
-        self.guest_name = reader.get('ahv', 'guest_name')
-        self.guest_user = reader.get('ahv', 'guest_user')
-        self.guest_passwd = reader.get('ahv', 'guest_passwd')
-        self.host_name = reader.get('ahv', 'host_name')
-        self.host_uuid = reader.get('ahv', 'host_uuid')
-        self.guest_ip = reader.get('ahv', 'guest_ip')
-        self.guest_uuid = reader.get('ahv', 'guest_uuid')
+        hypervisor_list = deploy.trigger.hypervisor_list.lower()
+        ahv = 'ahv2.0'
+        if "ahv3.0" in hypervisor_list:
+            ahv = 'ahv3.0'
+        self.master = reader.get(ahv, 'master')
+        self.master_user = reader.get(ahv, 'master_user')
+        self.master_passwd = reader.get(ahv, 'master_passwd')
+        self.cluster = reader.get(ahv, 'cluster')
+        self.api_version = reader.get(ahv, 'api_version')
+        self.guest_name = reader.get(ahv, 'guest_name')
+        self.guest_user = reader.get(ahv, 'guest_user')
+        self.guest_passwd = reader.get(ahv, 'guest_passwd')
+        self.host_name = reader.get(ahv, 'host_name')
+        self.host_uuid = reader.get(ahv, 'host_uuid')
+        self.guest_ip = reader.get(ahv, 'guest_ip')
+        self.guest_uuid = reader.get(ahv, 'guest_uuid')
 
 class DeploySettings(Settings):
     def __init__(self):
