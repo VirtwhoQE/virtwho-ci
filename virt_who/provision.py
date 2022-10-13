@@ -1864,8 +1864,8 @@ class Provision(Register):
         # self.stop_firewall(ssh_libvirt)
         # self.employee_sku_attach(ssh_libvirt)
         # self.rhel_repo_enable(ssh_libvirt)
-        self.libvirt_pkg_install(ssh_libvirt)
-        self.bridge_setup("br0", ssh_libvirt)
+        # self.libvirt_pkg_install(ssh_libvirt)
+        # self.bridge_setup("br0", ssh_libvirt)
         cmd = "service libvirtd restart"
         ret, output = self.runcmd(cmd, ssh_libvirt)
         guest_ip = self.libvirt_guest_ip(guest_name, ssh_libvirt)
@@ -1881,8 +1881,8 @@ class Provision(Register):
         guest_name = deploy.libvirt.guest_name
         guest_user = deploy.libvirt.guest_user
         guest_passwd = deploy.libvirt.guest_passwd
-        # self.libvirt_pkg_install(ssh_libvirt)
-        # self.bridge_setup("br0", ssh_libvirt)
+        self.libvirt_pkg_install(ssh_libvirt)
+        self.bridge_setup("br0", ssh_libvirt)
         self.libvirt_guests_all_clean(ssh_libvirt)
         guest_ip = self.libvirt_guest_add(guest_name, ssh_libvirt)
         logger.info("Succeeded to get local libvirt({0})'s guest ip: ({1})".format(ssh_libvirt['host'], guest_ip))
