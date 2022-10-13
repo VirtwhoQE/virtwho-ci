@@ -740,9 +740,10 @@ class Provision(Register):
         if "stage" in register_type:
             self.stage_consumer_clean(ssh_host, register_config)
 
-    def jenkins_parameter(self, hypervisor_config, register_config):
+    def jenkins_parameter(self, hypervisor_config, register_config, virtwho_build):
         parameter = list()
         parameter.append('-d TRIGGER_TYPE={0}'.format(deploy.trigger.type))
+        parameter.append('-d VIRTWHO_BUILD={0}'.format(virtwho_build))
         parameter.append('-d VIRTWHO_HOST_IP={0}'.format(hypervisor_config['host_ip']))
         parameter.append('-d VIRTWHO_HOST_USER={0}'.format(hypervisor_config['host_user']))
         parameter.append('-d VIRTWHO_HOST_PASSWD={0}'.format(hypervisor_config['host_passwd']))
@@ -787,6 +788,8 @@ class Provision(Register):
             parameter.append('-d PROVISION_INI={0}'.format(provision_ini))
             parameter.append('-d RHEL_COMPOSE={0}'.format(deploy.trigger.rhel_compose))
             parameter.append('-d TRIGGER_LEVEL={0}'.format(deploy.trigger.level))
+            parameter.append('-d POLARION_REPORT={0}'.format(self.get_exported_param("POLARION_REPORT")))
+            parameter.append('-d PLANNED_IN={0}'.format(self.get_exported_param("PLANNED_IN")))
         data = ' '.join(parameter)
         return data 
 
@@ -808,7 +811,9 @@ class Provision(Register):
                 kube_config_url = deploy.kubevirt.kube_config_url
                 cmd = "rm -f {1}; curl -L {0} -o {1}; sync".format(kube_config_url, kube_config_file)
                 ret, output = self.runcmd(cmd, ssh_host)
-            data = self.jenkins_parameter(hypervisor_config, register_config)
+            _, virtwho_build = self.runcmd("rpm -qa virt-who", ssh_host)
+            virtwho_build = virtwho_build.split('.noarch')[0]
+            data = self.jenkins_parameter(hypervisor_config, register_config, virtwho_build)
             if deploy.trigger.type == "trigger-gating":
                 job_name = "runtest-gating"
             cmd = "curl -k -s -i -X POST {0}/job/{1}/buildWithParameters --user {2}:{3} {4}".format(
@@ -1859,8 +1864,8 @@ class Provision(Register):
         # self.stop_firewall(ssh_libvirt)
         # self.employee_sku_attach(ssh_libvirt)
         # self.rhel_repo_enable(ssh_libvirt)
-        # self.libvirt_pkg_install(ssh_libvirt)
-        # self.bridge_setup("br0", ssh_libvirt)
+        self.libvirt_pkg_install(ssh_libvirt)
+        self.bridge_setup("br0", ssh_libvirt)
         cmd = "service libvirtd restart"
         ret, output = self.runcmd(cmd, ssh_libvirt)
         guest_ip = self.libvirt_guest_ip(guest_name, ssh_libvirt)
@@ -1876,8 +1881,8 @@ class Provision(Register):
         guest_name = deploy.libvirt.guest_name
         guest_user = deploy.libvirt.guest_user
         guest_passwd = deploy.libvirt.guest_passwd
-        self.libvirt_pkg_install(ssh_libvirt)
-        self.bridge_setup("br0", ssh_libvirt)
+        # self.libvirt_pkg_install(ssh_libvirt)
+        # self.bridge_setup("br0", ssh_libvirt)
         self.libvirt_guests_all_clean(ssh_libvirt)
         guest_ip = self.libvirt_guest_add(guest_name, ssh_libvirt)
         logger.info("Succeeded to get local libvirt({0})'s guest ip: ({1})".format(ssh_libvirt['host'], guest_ip))
