@@ -149,8 +149,8 @@ def polarion_testrun_title():
 def polarion_planned_in():
     keyword = get_exported_param("PLANNED_IN")
     rhel_compose = get_exported_param("RHEL_COMPOSE")
-    planned_in = ''
-    planned_in_dict = {
+    plan = ''
+    plans_dict = {
         'RHEL-9.1': {
             'MAIN': 'RHEL_9_1',
             'CTC1': '9_1_CTC_1',
@@ -181,14 +181,12 @@ def polarion_planned_in():
         }
     }
     if 'Legacy' in keyword:
-        planned_in = 'RHEL_Legacy_Release'
-    elif 'Null' in keyword:
-        planned_in = ''
+        plan = 'RHEL_Legacy_Release'
     else:
-        for (rhel, plannedIns) in planned_in_dict.items():
+        for (rhel, plans) in plans_dict.items():
             if rhel in rhel_compose:
-                planned_in = plannedIns[keyword]
-    return planned_in
+                plan = plans[keyword]
+    return plan
 
 
 def polarion_xml_init():
