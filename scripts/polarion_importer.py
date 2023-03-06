@@ -186,6 +186,8 @@ def polarion_planned_in():
     #     for (rhel, plans) in plans_dict.items():
     #         if rhel in rhel_compose:
     #             plan = plans[keyword]
+
+    # Get planned in id from http://10.73.131.83/ci/polarion/plannedIn
     plan = get_exported_param("PLANNED_IN")
     return plan
 
