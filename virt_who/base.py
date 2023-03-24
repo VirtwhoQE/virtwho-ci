@@ -1,5 +1,5 @@
 from virt_who import *
-
+from virt_who import register
 class Base(unittest.TestCase):
     def paramiko_run(self, cmd, host, username, password, timeout=1800, port=22):
         ssh = paramiko.SSHClient()
@@ -377,7 +377,7 @@ class Base(unittest.TestCase):
 
     def system_init(self, key, ssh):
         if self.ssh_is_connected(ssh):
-            self.rhsm_backup(ssh)
+            register.Register.rhsm_backup(ssh)
             host_ip = self.get_ipaddr(ssh)
             host_name = self.get_hostname(ssh)
             if "localhost" in host_name or "unused" in host_name or "openshift" in host_name or host_name is None:
@@ -481,11 +481,3 @@ class Base(unittest.TestCase):
             logger.info("Try to scan ip by nmap in %s after 30s ..." % ssh['host'])
         logger.error("Failed to get ip addr by mac(%s)" % ssh['host'])
         return False
-
-    def rhsm_backup(self, ssh):
-        ret, output = self.runcmd("ls /backup/rhsm.conf", ssh)
-        if ret != 0 or "No such file or directory" in output:
-            cmd = "rm -rf /backup/; mkdir -p /backup/; cp /etc/rhsm/rhsm.conf /backup/"
-            self.runcmd(cmd, ssh)
-        else:
-            logger.info("rhsm.conf is backup already({0})".format(ssh['host']))
