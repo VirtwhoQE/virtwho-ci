@@ -2091,15 +2091,16 @@ class Provision(Register):
         cert = self.vcenter_cert(vcenter_ip, vcenter_admin_user, vcenter_admin_passwd)
         guest_ip = self.vcenter_guest_ip(cert, ssh_cli, guest_name)
         if not guest_ip:
-            ssh_master = {
-                "host": master,
-                "username": master_user,
-                "password": master_passwd,
-            }
-            self.vcenter_host_ready(cert, ssh_cli, ssh_master)
-            guest_ip = self.vcenter_guest_add(
-                cert, ssh_cli, ssh_master, guest_name, image_path
-            )
+            raise FailException("Failed to get vcenter guest ip")
+        #     ssh_master = {
+        #         "host": master,
+        #         "username": master_user,
+        #         "password": master_passwd,
+        #     }
+        #     self.vcenter_host_ready(cert, ssh_cli, ssh_master)
+        #     guest_ip = self.vcenter_guest_add(
+        #         cert, ssh_cli, ssh_master, guest_name, image_path
+        #     )
         logger.info("Succeeded to get vcenter guest ip: {0}".format(guest_ip))
         ssh_guest = {"host": guest_ip, "username": guest_user, "password": guest_passwd}
         self.system_init("ci-guest-esx", ssh_guest)
@@ -2122,7 +2123,8 @@ class Provision(Register):
         }
         guest_ip = self.hyperv_guest_ip(ssh_hyperv, guest_name)
         if not guest_ip:
-            guest_ip = self.hyperv_guest_add(ssh_hyperv, guest_name, image_path)
+            raise FailException("Failed to get hyperv guest ip")
+        #     guest_ip = self.hyperv_guest_add(ssh_hyperv, guest_name, image_path)
         logger.info("Succeeded to get hyperv guest ip: {0}".format(guest_ip))
         ssh_guest = {"host": guest_ip, "username": guest_user, "password": guest_passwd}
         self.system_init("ci-guest-hyperv", ssh_guest)
@@ -2158,8 +2160,9 @@ class Provision(Register):
         }
         guest_ip = self.xen_guest_ip(ssh_master, guest_name)
         if not guest_ip:
-            self.xen_host_ready(ssh_master, sr_name, sr_server, sr_path)
-            guest_ip = self.xen_guest_add(ssh_master, guest_name, sr_name, image_path)
+            raise FailException("Failed to get xen guest ip")
+            # self.xen_host_ready(ssh_master, sr_name, sr_server, sr_path)
+            # guest_ip = self.xen_guest_add(ssh_master, guest_name, sr_name, image_path)
         logger.info("Succeeded to get xen guest ip: {0}".format(guest_ip))
         ssh_guest = {"host": guest_ip, "username": guest_user, "password": guest_passwd}
         self.system_init("ci-guest-xen", ssh_guest)
@@ -2221,8 +2224,9 @@ class Provision(Register):
         ret, output = self.runcmd(cmd, ssh_libvirt)
         guest_ip = self.libvirt_guest_ip(guest_name, ssh_libvirt)
         if not guest_ip:
-            self.libvirt_guests_all_clean(ssh_libvirt)
-            guest_ip = self.libvirt_guest_add(guest_name, ssh_libvirt)
+            raise FailException("Failed to remote libvirt guest ip")
+        #     self.libvirt_guests_all_clean(ssh_libvirt)
+        #     guest_ip = self.libvirt_guest_add(guest_name, ssh_libvirt)
         logger.info(
             "Succeeded to get remote libvirt({0})'s guest ip: ({1})".format(
                 remote_host, guest_ip
